@@ -1,6 +1,6 @@
 use std::{fmt, ops};
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct Vec3(f64, f64, f64);
 impl Vec3 {
     pub fn new(e: (f64, f64, f64)) -> Self {
@@ -143,3 +143,33 @@ impl fmt::Display for Color {
 }
 pub type Point3 = Vec3;
 pub type Color = Vec3;
+
+#[derive(Default)]
+pub struct Ray {
+    orig: Point3,
+    dir: Vec3
+}
+
+impl Ray {
+    pub fn new(orig: Point3, dir: Vec3) -> Self {
+        Self {
+            orig,
+            dir
+        }
+    }
+    pub fn orig(&self) -> Point3 {
+        self.orig.clone()
+    }
+    pub fn orig_mut(&mut self) -> &mut Point3 {
+        &mut self.orig
+    }
+    pub fn direction(&self) -> Vec3 {
+        self.dir.clone()
+    }
+    pub fn direction_mut(&mut self) -> &mut Vec3 {
+        &mut self.dir
+    }
+    pub fn at(&self, t: f64) -> Point3 {
+        &self.orig + &(&self.dir * t)
+    }
+}
