@@ -270,3 +270,7 @@ impl Hittable for HittableList {
         return hit_anything;
     }
 }
+//6-6 just talk about some c++ thing, In rust we could use
+//the Rc<RefCell<T>> to implement as well.
+//just some memory safety problem.
+//which will not happened in rust.
