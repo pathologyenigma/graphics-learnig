@@ -174,9 +174,20 @@ impl Ray {
         self.orig + self.dir * t
     }
     pub fn ray_color(&self) -> Color {
+        if self.hit_sphere(Point3::new((0.,0.,1.)), 0.5){
+            return Color::new((1.,0.,1.));
+        }
         let unit_direction = self.direction().unit_vector();
         let t = 0.5 * (unit_direction.y() + 1.);
         (1. - t) * Color::new((1.,1.,1.)) + t * Color::new((0.5, 0.7, 1.))
+    }
+    pub fn hit_sphere(&self, center: Point3, radius: f64) -> bool {
+        let oc = self.orig() - center;
+        let a = self.direction().dot(&self.direction());
+        let b = 2. * oc.dot(&self.direction());
+        let c = oc.dot(&oc) - radius * radius;
+        let discriminant = b * b - 4. * a * c;
+        discriminant > 0.
     }
 }
 
