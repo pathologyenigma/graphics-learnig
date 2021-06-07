@@ -186,17 +186,54 @@ impl Ray {
         let t = 0.5 * (unit_direction.y() + 1.);
         (1. - t) * Color::new((1.,1.,1.)) + t * Color::new((0.5, 0.7, 1.))
     }
-    pub fn hit_sphere(&self, center: Point3, radius: f64) -> f64 {
-        let oc = self.orig() - center;
-        let a = self.direction().len_squared();
-        let half_b = oc.dot(&self.direction());
-        let c = oc.len_squared() - radius * radius;
-        let discriminant = half_b * half_b - a * c;
-        if discriminant < 0. {
-            -1.
-        }else {
-            (-half_b - discriminant.sqrt()) / a
+}
+#[derive(Default)]
+pub struct HitRecord {
+    p: Point3,
+    normal: Vec3,
+    t: f64,
+}
+
+pub trait Hittable {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool;
+}
+#[derive(Default)]
+pub struct Sphere{
+    center: Point3,
+    radius: f64,
+}
+
+impl Hittable for Sphere {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool {
+        let oc = ray.orig() - self.center;
+        let a = ray.direction().len_squared();
+        let half_b = oc.dot(&ray.direction());
+        let c = oc.len_squared() - self.radius.powf(2.);
+
+        let discriminant = half_b.powf(2.) - a * c;
+        if discriminant < 0. {return false;}
+        let sqrtd = discriminant.sqrt();
+
+        let mut root = (-half_b - sqrtd) / a;
+        if root < t_min || t_max < root {
+            root = (-half_b + sqrtd) / a;
+            if root < t_min || t_max < root {
+                return false;
+            }
         }
+
+        rec.t = root;
+        rec.p = ray.at(rec.t);
+        rec.normal = (rec.p - self.center) / self.radius;
+        true
     }
 }
 
+impl Sphere {
+    pub fn new(center: Point3, radius: f64) -> Self {
+        Self {
+            center,
+            radius
+        }
+    }
+}
