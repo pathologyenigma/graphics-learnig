@@ -24,6 +24,9 @@ impl Vec3 {
     pub fn z(&self) -> f64 {
         self.2.clone()
     }
+    pub fn len_squared(&self) -> f64 {
+        self.x().powf(2.) + self.y().powf(2.) + self.z().powf(2.)
+    }
     pub fn len(&self) -> f64 {
         (self.x().powf(2.) + self.y().powf(2.) + self.z().powf(2.)).sqrt()
     }
@@ -185,14 +188,14 @@ impl Ray {
     }
     pub fn hit_sphere(&self, center: Point3, radius: f64) -> f64 {
         let oc = self.orig() - center;
-        let a = self.direction().dot(&self.direction());
-        let b = 2. * oc.dot(&self.direction());
-        let c = oc.dot(&oc) - radius * radius;
-        let discriminant = b * b - 4. * a * c;
+        let a = self.direction().len_squared();
+        let half_b = oc.dot(&self.direction());
+        let c = oc.len_squared() - radius * radius;
+        let discriminant = half_b * half_b - a * c;
         if discriminant < 0. {
             -1.
         }else {
-            (-b - discriminant.sqrt()) / (2. * a)
+            (-half_b - discriminant.sqrt()) / a
         }
     }
 }
