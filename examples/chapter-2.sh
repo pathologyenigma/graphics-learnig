@@ -1,1 +1,1 @@
-../target/debug/examples/chapter-2 > image.ppm
+../target/debug/examples/chapter-2 > image-2.ppm
