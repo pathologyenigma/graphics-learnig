@@ -1,4 +1,4 @@
-use std::{fmt, ops};
+use std::{cell::RefCell, fmt, ops, rc::Rc};
 
 #[derive(Default, Debug, Clone, Copy, PartialEq)]
 pub struct Vec3(f64, f64, f64);
@@ -192,6 +192,17 @@ pub struct HitRecord {
     p: Point3,
     normal: Vec3,
     t: f64,
+    front_face: bool,
+}
+impl HitRecord {
+    #[inline]
+    pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: &Vec3){
+        self.front_face = ray.direction().dot(outward_normal) < 0.;
+        self.normal = match self.front_face {
+            true => outward_normal.clone(),
+            false => -outward_normal.clone(),
+        }
+    }
 }
 
 pub trait Hittable {
@@ -224,7 +235,8 @@ impl Hittable for Sphere {
 
         rec.t = root;
         rec.p = ray.at(rec.t);
-        rec.normal = (rec.p - self.center) / self.radius;
+        let outward_normal = (rec.p - self.center) / self.radius;
+        rec.set_face_normal(ray, &outward_normal);
         true
     }
 }
@@ -235,5 +247,26 @@ impl Sphere {
             center,
             radius
         }
+    }
+    
+}
+
+pub struct HittableList {
+    objects: Vec<Rc<RefCell<dyn Hittable>>>
+}
+
+impl Hittable for HittableList {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool {
+        let mut temp_rec = HitRecord::default();
+        let mut hit_anything = false;
+        let closest_so_far = t_max;
+        for object in self.objects {
+            if object.borrow().hit(ray, t_min, closest_so_far, &mut temp_rec) {
+                hit_anything = true;
+                closest_so_far = temp_rec.t;
+                *rec = temp_rec;
+            }
+        }
+        return hit_anything;
     }
 }
