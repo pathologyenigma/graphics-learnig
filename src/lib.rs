@@ -1,6 +1,6 @@
 use std::{fmt, ops};
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Copy, PartialEq)]
 pub struct Vec3(f64, f64, f64);
 impl Vec3 {
     pub fn new(e: (f64, f64, f64)) -> Self {
@@ -41,9 +41,10 @@ impl Vec3 {
     }
     #[inline]
     pub fn unit_vector(&self) -> Self {
-        self / self.len()
+        *self / self.len()
     }
 }
+
 impl ops::Neg for Vec3 {
     type Output = Vec3;
 
@@ -94,57 +95,57 @@ impl ops::DivAssign for Vec3 {
         self.2 /= rhs.2;
     }
 }
-impl ops::Add for &Vec3 {
+impl ops::Add for Vec3 {
     type Output = Vec3;
     #[inline]
     fn add(self, rhs: Self) -> Self::Output {
         Self::Output::new((self.0 + rhs.0, self.1 + rhs.1, self.2 + rhs.2))
     }
 }
-impl ops::Sub for &Vec3 {
+impl ops::Sub for Vec3 {
     type Output = Vec3;
     #[inline]
     fn sub(self, rhs: Self) -> Self::Output {
         Self::Output::new((self.0 - rhs.0, self.1 - rhs.1, self.2 - rhs.2))
     }
 }
-impl ops::Mul for &Vec3 {
+impl ops::Mul for Vec3 {
     type Output = Vec3;
     #[inline]
     fn mul(self, rhs: Self) -> Self::Output {
         Self::Output::new((self.0 * rhs.0, self.1 * rhs.1, self.2 * rhs.2))
     }
 }
-impl ops::Mul<f64> for &Vec3 {
+impl ops::Mul<f64> for Vec3 {
     type Output = Vec3;
     #[inline]
     fn mul(self, rhs: f64) -> Self::Output {
         Self::Output::new((self.0 * rhs, self.1 * rhs, self.2 * rhs))
     }
 }
-impl ops::Mul<&Vec3> for f64 {
+impl ops::Mul<Vec3> for f64 {
     type Output = Vec3;
     #[inline]
-    fn mul(self, rhs: &Vec3) -> Self::Output {
+    fn mul(self, rhs: Vec3) -> Self::Output {
         rhs * self
     }
 }
-impl ops::Div<f64> for &Vec3 {
+impl ops::Div<f64> for Vec3 {
     type Output = Vec3;
     #[inline]
     fn div(self, rhs: f64) -> Self::Output {
-        return 1./rhs * self
+        return self * (1. / rhs);
     }
 }
 impl fmt::Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} {} {}", (255.999 * self.x()) as u32, (255.999 * self.y()) as u32, (255.999 * self.z()) as u32)
+        write!(f, "{} {} {}", (255.999 * self.x()) as i32, (255.999 * self.y()) as i32, (255.999 * self.z()) as i32)
     }
 }
 pub type Point3 = Vec3;
 pub type Color = Vec3;
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Ray {
     orig: Point3,
     dir: Vec3
@@ -170,6 +171,12 @@ impl Ray {
         &mut self.dir
     }
     pub fn at(&self, t: f64) -> Point3 {
-        &self.orig + &(&self.dir * t)
+        self.orig + self.dir * t
+    }
+    pub fn ray_color(&self) -> Color {
+        let unit_direction = self.direction().unit_vector();
+        let t = 0.5 * (unit_direction.y() + 1.);
+        (1. - t) * Color::new((1.,1.,1.)) + t * Color::new((0.5, 0.7, 1.))
     }
 }
+
