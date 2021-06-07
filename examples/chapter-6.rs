@@ -1,9 +1,15 @@
+use std::{cell::RefCell, rc::Rc};
+
 use ray_tracing_in_one_weekend::*;
 
 fn main() {
     const ASPECT_RATIO: f64 = 16. / 9.;
     const IMAGE_WIDTH: u32 = 400;
     const IMAGE_HEIGHT: u32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as u32;
+
+    let mut world = HittableList::new();
+    world.add(Rc::new(RefCell::new(Sphere::new(Point3::new((0.,0.,-1.)), 0.5))));
+    world.add(Rc::new(RefCell::new(Sphere::new(Point3::new((0.,-100.5,-1.)), 100.))));
     let viewport_height = 2.;
     let viewport_width = ASPECT_RATIO * viewport_height;
     let focal_length = 1.;
@@ -26,7 +32,7 @@ fn main() {
                 origin,
                 lower_left_corner + u * horizontal + v * vertical - origin,
             );
-            println!("{}", r.ray_color());
+            println!("{}", r.ray_color(&world));
         }
         j -= 1;
     }
