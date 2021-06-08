@@ -13,3 +13,10 @@ pub use hittable::*;
 
 pub use std::f64::consts::PI as PI;
 pub const INFINITY: f64 = f64::INFINITY;
+pub use rand::prelude::*;
+
+pub fn random_float() -> f64 {
+    thread_rng().gen()
+}
+//7-1 just talk about some c++ thing, c++ use random library
+//in rust we don't have it in standard library, I choose rand here.
