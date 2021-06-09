@@ -20,3 +20,5 @@ pub fn random_float() -> f64 {
 }
 //7-1 just talk about some c++ thing, c++ use random library
 //in rust we don't have it in standard library, I choose rand here.
+pub mod camera;
+pub use camera::*;

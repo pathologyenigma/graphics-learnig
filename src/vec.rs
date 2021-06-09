@@ -141,8 +141,26 @@ impl ops::Div<f64> for Vec3 {
 }
 impl fmt::Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} {} {}", (255.999 * self.x()) as i32, (255.999 * self.y()) as i32, (255.999 * self.z()) as i32)
+        write!(f, "{} {} {}", (256. * self.x()) as i32, (256. * self.y()) as i32, (256. * self.z()) as i32)
     }
 }
 pub type Point3 = Vec3;
 pub type Color = Vec3;
+impl Color {
+    pub fn write(&self, samples_per_pixel: usize) {
+        let (mut r,mut g, mut b) = (self.x(), self.y(), self.z());
+
+        let scale = 1. / samples_per_pixel as f64;
+        r *= scale;
+        b *= scale;
+        g *= scale;
+
+        println!("{}",Color::new((clamp(r, 0., 0.999),clamp(g, 0., 0.999), clamp(b, 0., 0.999))));
+    }
+    
+}
+fn clamp(x: f64, min: f64, max: f64) -> f64 {
+    if x < min {return min;}
+    if x > max {return max;}
+    x
+}
