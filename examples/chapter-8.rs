@@ -19,7 +19,7 @@ fn main() {
         
         for i in 0..IMAGE_WIDTH {
             let mut pixel_color = Color::default();
-            for s in 0..SPP {
+            for _ in 0..SPP {
                 let u = (i as f64 + random_float()) / (IMAGE_WIDTH - 1) as f64;
                 let v = (j as f64 + random_float()) / (IMAGE_HEIGHT - 1) as f64;
                 let r = cam.get_ray(u, v);

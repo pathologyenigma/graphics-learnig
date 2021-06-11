@@ -167,9 +167,9 @@ impl Color {
         let (mut r,mut g, mut b) = (self.x(), self.y(), self.z());
 
         let scale = 1. / samples_per_pixel as f64;
-        r *= scale;
-        b *= scale;
-        g *= scale;
+        r = (r * scale).sqrt();
+        b = (b * scale).sqrt();
+        g = (g * scale).sqrt();
 
         println!("{}",Color::new((clamp(r, 0., 0.999),clamp(g, 0., 0.999), clamp(b, 0., 0.999))));
     }
