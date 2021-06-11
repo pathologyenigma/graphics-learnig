@@ -1,1 +1,1 @@
-../target/debug/examples/chapter-5 > ../outputs/image-5.ppm
+./target/debug/examples/chapter-5 > ./outputs/image-5.ppm
