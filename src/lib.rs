@@ -18,6 +18,9 @@ pub use rand::prelude::*;
 pub fn random_float() -> f64 {
     thread_rng().gen()
 }
+pub fn random_float_with_range(min: f64, max: f64) -> f64 {
+    thread_rng().gen_range(min..max)
+}
 //7-1 just talk about some c++ thing, c++ use random library
 //in rust we don't have it in standard library, I choose rand here.
 pub mod camera;

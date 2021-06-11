@@ -1,4 +1,6 @@
 use std::{fmt, ops};
+
+use super::{random_float, random_float_with_range};
 #[derive(Default, Debug, Clone, Copy, PartialEq)]
 pub struct Vec3(f64, f64, f64);
 impl Vec3 {
@@ -44,6 +46,20 @@ impl Vec3 {
     #[inline]
     pub fn unit_vector(&self) -> Self {
         *self / self.len()
+    }
+    #[inline]
+    pub fn random() -> Self {
+        Self(random_float(),random_float(),random_float())
+    }
+    pub fn random_with_range(min: f64, max: f64) -> Self {
+        Self(random_float_with_range(min,max), random_float_with_range(min, max), random_float_with_range(min, max))
+    }
+    pub fn random_in_unit_sphere() -> Self {
+        loop {
+            let p = Self::random_with_range(-1., 1.);
+            if p.len_squared() >= 1. {continue;}
+            return p;
+        }
     }
 }
 
