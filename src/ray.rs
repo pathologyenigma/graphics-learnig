@@ -24,11 +24,14 @@ impl Ray {
     pub fn at(&self, t: f64) -> Point3 {
         self.orig + self.dir * t
     }
-    pub fn ray_color(&self, world: &dyn Hittable) -> Color {
+    pub fn ray_color(&self, world: &dyn Hittable, depth: isize) -> Color {
         let mut rec = HitRecord::default();
+        if depth <= 0 {
+            return Color::default();
+        }
         if world.hit(self, 0., INFINITY, &mut rec) {
             let target = rec.p + rec.normal + Vec3::random_in_unit_sphere();
-            return 0.5 * Ray::new(rec.p, target - rec.p).ray_color(world);
+            return 0.5 * Ray::new(rec.p, target - rec.p).ray_color(world, depth-1);
         }
         let unit_direction = self.direction().unit_vector();
         let t = 0.5 * (unit_direction.y() + 1.);

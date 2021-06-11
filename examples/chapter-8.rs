@@ -7,6 +7,7 @@ fn main() {
     const IMAGE_WIDTH: u32 = 400;
     const IMAGE_HEIGHT: u32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as u32;
     const SPP: usize = 100; //samples_per_pixel
+    const MAX_DEPTH: usize = 50;
     let mut world = HittableList::new();
     world.add(Rc::new(RefCell::new(Sphere::new(Point3::new((0.,0.,-1.)), 0.5))));
     world.add(Rc::new(RefCell::new(Sphere::new(Point3::new((0.,-100.5,-1.)), 100.))));
@@ -19,10 +20,10 @@ fn main() {
         for i in 0..IMAGE_WIDTH {
             let mut pixel_color = Color::default();
             for s in 0..SPP {
-                let u = i as f64 / (IMAGE_WIDTH - 1) as f64;
-                let v = j as f64 / (IMAGE_HEIGHT - 1) as f64;
+                let u = (i as f64 + random_float()) / (IMAGE_WIDTH - 1) as f64;
+                let v = (j as f64 + random_float()) / (IMAGE_HEIGHT - 1) as f64;
                 let r = cam.get_ray(u, v);
-                pixel_color += r.ray_color(&world);
+                pixel_color += r.ray_color(&world, MAX_DEPTH as isize);
             }
             pixel_color.write(SPP);
         }

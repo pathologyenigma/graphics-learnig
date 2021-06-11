@@ -1,0 +1,1 @@
+../target/debug/examples/chapter-2 > ../outputs/image-2.ppm
