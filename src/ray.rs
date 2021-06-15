@@ -1,3 +1,5 @@
+use std::borrow::Borrow;
+
 use super::{Color, HitRecord, Hittable, Point3, Vec3, INFINITY};
 #[derive(Default, Debug)]
 pub struct Ray {
@@ -30,8 +32,12 @@ impl Ray {
             return Color::default();
         }
         if world.hit(self, 0.001, INFINITY, &mut rec) {
-            let target = rec.p + Vec3::random_in_hemisphere(&rec.normal);
-            return 0.5 * Ray::new(rec.p, target - rec.p).ray_color(world, depth-1);
+            let mut scattered = Ray::default();
+            let mut attention = Color::default();
+            if rec.mat_ptr.clone().unwrap().as_ref().borrow().scatter(self, &mut rec, &mut attention, &mut scattered) {
+                return attention * scattered.ray_color(world, depth-1);
+            }
+            return Color::default();
         }
         let unit_direction = self.direction().unit_vector();
         let t = 0.5 * (unit_direction.y() + 1.);

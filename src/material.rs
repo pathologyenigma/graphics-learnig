@@ -42,7 +42,7 @@ pub struct Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, r_in: &Ray, rec: &mut HitRecord, attention: &mut Color, scattered: &mut Ray) -> bool {
+    fn scatter(&self, _r_in: &Ray, rec: &mut HitRecord, attention: &mut Color, scattered: &mut Ray) -> bool {
         let mut scatter_direction = rec.normal + Vec3::random_unit_vector();
         if scatter_direction.near_zero() {
             scatter_direction = rec.normal;
@@ -50,5 +50,18 @@ impl Material for Lambertian {
         *scattered = Ray::new(rec.p, scatter_direction);
         *attention = self.albedo;
         return true;
+    }
+}
+
+pub struct Metal {
+    pub(crate) albedo: Color
+}
+
+impl Material for Metal {
+    fn scatter(&self, r_in: &Ray, rec: &mut HitRecord, attention: &mut Color, scattered: &mut Ray) -> bool {
+        let reflected = r_in.direction().reflect(rec.normal);
+        *scattered = Ray::new(rec.clone().p, reflected);
+        *attention = self.albedo;
+        scattered.direction().dot(&rec.normal) > 0.
     }
 }

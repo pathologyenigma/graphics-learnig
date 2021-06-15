@@ -74,6 +74,9 @@ impl Vec3 {
         let s = ten.powf(-8.);
         (self.0.abs() < s) && (self.1.abs() < s) && (self.2.abs() < s)
     }
+    pub fn reflect(&self, n: Vec3) -> Vec3 {
+        *self - 2. * self.dot(&n) * n 
+    }
 }
 
 impl ops::Neg for Vec3 {
