@@ -30,7 +30,7 @@ impl Ray {
             return Color::default();
         }
         if world.hit(self, 0.001, INFINITY, &mut rec) {
-            let target = rec.p + rec.normal + Vec3::random_in_unit_sphere();
+            let target = rec.p + rec.normal + Vec3::random_unit_vector();
             return 0.5 * Ray::new(rec.p, target - rec.p).ray_color(world, depth-1);
         }
         let unit_direction = self.direction().unit_vector();
