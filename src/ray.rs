@@ -29,7 +29,7 @@ impl Ray {
         if depth <= 0 {
             return Color::default();
         }
-        if world.hit(self, 0., INFINITY, &mut rec) {
+        if world.hit(self, 0.001, INFINITY, &mut rec) {
             let target = rec.p + rec.normal + Vec3::random_in_unit_sphere();
             return 0.5 * Ray::new(rec.p, target - rec.p).ray_color(world, depth-1);
         }

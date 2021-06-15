@@ -16,7 +16,7 @@ pub const INFINITY: f64 = f64::INFINITY;
 pub use rand::prelude::*;
 
 pub fn random_float() -> f64 {
-    thread_rng().gen()
+    thread_rng().gen_range(0.0..1.)
 }
 pub fn random_float_with_range(min: f64, max: f64) -> f64 {
     thread_rng().gen_range(min..max)
