@@ -25,3 +25,5 @@ pub fn random_float_with_range(min: f64, max: f64) -> f64 {
 //in rust we don't have it in standard library, I choose rand here.
 pub mod camera;
 pub use camera::*;
+pub mod material;
+pub use material::*;

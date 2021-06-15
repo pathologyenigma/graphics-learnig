@@ -64,6 +64,16 @@ impl Vec3 {
     pub fn random_unit_vector() -> Self {
         Self::random_in_unit_sphere().unit_vector()
     }
+    pub fn random_in_hemisphere(normal: &Vec3) -> Self {
+        let in_unit_sphere = Self::random_in_unit_sphere();
+        if in_unit_sphere.dot(normal) > 0. {return in_unit_sphere}
+        -in_unit_sphere
+    }
+    pub fn near_zero(&self) -> bool {
+        let ten: f64 = 10.;
+        let s = ten.powf(-8.);
+        (self.0.abs() < s) && (self.1.abs() < s) && (self.2.abs() < s)
+    }
 }
 
 impl ops::Neg for Vec3 {

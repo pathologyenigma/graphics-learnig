@@ -1,30 +1,17 @@
 use std::{cell::RefCell, rc::Rc};
-use super::{Point3, Vec3, Ray};
-#[derive(Default, Clone, Copy)]
-pub struct HitRecord {
-    pub(crate) p: Point3,
-    pub(crate) normal: Vec3,
-    pub(crate) t: f64,
-    pub(crate) front_face: bool,
-}
-impl HitRecord {
-    #[inline]
-    pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: &Vec3){
-        self.front_face = ray.direction().dot(outward_normal) < 0.;
-        self.normal = match self.front_face {
-            true => outward_normal.clone(),
-            false => -outward_normal.clone(),
-        }
-    }
-}
+use crate::{HitRecord, Material};
+
+use super::{Point3, Ray};
+
 
 pub trait Hittable {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool;
 }
-#[derive(Default)]
+
 pub struct Sphere{
     center: Point3,
     radius: f64,
+    mat_ptr: Rc<RefCell<dyn Material>>
 }
 
 impl Hittable for Sphere {
@@ -50,15 +37,17 @@ impl Hittable for Sphere {
         rec.p = ray.at(rec.t);
         let outward_normal = (rec.p - self.center) / self.radius;
         rec.set_face_normal(ray, &outward_normal);
+        rec.mat_ptr = Some(self.mat_ptr.clone());
         true
     }
 }
 
 impl Sphere {
-    pub fn new(center: Point3, radius: f64) -> Self {
+    pub fn new(center: Point3, radius: f64, mat_ptr: Rc<RefCell<dyn Material>>) -> Self {
         Self {
             center,
-            radius
+            radius,
+            mat_ptr
         }
     }
     
@@ -92,8 +81,8 @@ impl Hittable for HittableList {
         for object in &self.objects {
             if object.borrow().hit(ray, t_min, closest_so_far, &mut temp_rec) {
                 hit_anything = true;
-                closest_so_far = temp_rec.t;
-                *rec = temp_rec;
+                closest_so_far = temp_rec.clone().t;
+                *rec = temp_rec.clone();
             }
         }
         return hit_anything;
