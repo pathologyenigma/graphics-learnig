@@ -9,20 +9,36 @@ fn main() {
     const SPP: usize = 100; //samples_per_pixel
     const MAX_DEPTH: usize = 50;
     let mut world = HittableList::new();
-    let ground = Rc::new(RefCell::new(Lambertian::new(Color::new((0.8,0.8,0.)))));
+    let ground = Rc::new(RefCell::new(Lambertian::new(Color::new((0.8, 0.8, 0.)))));
     let center = Rc::new(RefCell::new(Dielectric::new(1.5)));
     let left = Rc::new(RefCell::new(Dielectric::new(1.5)));
-    let right = Rc::new(RefCell::new(Metal::new(Color::new((0.8,0.6,0.2)),1.)));
-    world.add(Rc::new(RefCell::new(Sphere::new(Point3::new((0., -100.5, -1.)),100., ground))));
-    world.add(Rc::new(RefCell::new(Sphere::new(Point3::new((0., 0., -1.)),0.5, center))));
-    world.add(Rc::new(RefCell::new(Sphere::new(Point3::new((-1., 0., -1.)),0.5, left))));
-    world.add(Rc::new(RefCell::new(Sphere::new(Point3::new((1., 0., -1.)),0.5, right))));
+    let right = Rc::new(RefCell::new(Metal::new(Color::new((0.8, 0.6, 0.2)), 1.)));
+    world.add(Rc::new(RefCell::new(Sphere::new(
+        Point3::new((0., -100.5, -1.)),
+        100.,
+        ground,
+    ))));
+    world.add(Rc::new(RefCell::new(Sphere::new(
+        Point3::new((0., 0., -1.)),
+        0.5,
+        center,
+    ))));
+    world.add(Rc::new(RefCell::new(Sphere::new(
+        Point3::new((-1., 0., -1.)),
+        0.5,
+        left,
+    ))));
+    world.add(Rc::new(RefCell::new(Sphere::new(
+        Point3::new((1., 0., -1.)),
+        0.5,
+        right,
+    ))));
     let cam = Camera::default();
     println!("P3\n{} {}\n255", IMAGE_WIDTH, IMAGE_HEIGHT);
     let mut j: i64 = (IMAGE_HEIGHT - 1) as i64;
     while j >= 0 {
         eprintln!("\rScanlines remaining: {} ", j);
-        
+
         for i in 0..IMAGE_WIDTH {
             let mut pixel_color = Color::default();
             for _ in 0..SPP {
@@ -33,7 +49,7 @@ fn main() {
             }
             pixel_color.write(SPP);
         }
-        
+
         j -= 1;
     }
     eprintln!("\n Done! \n");

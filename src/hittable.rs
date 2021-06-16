@@ -1,17 +1,16 @@
-use std::{cell::RefCell, rc::Rc};
 use crate::{HitRecord, Material};
+use std::{cell::RefCell, rc::Rc};
 
 use super::{Point3, Ray};
-
 
 pub trait Hittable {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool;
 }
 
-pub struct Sphere{
+pub struct Sphere {
     center: Point3,
     radius: f64,
-    mat_ptr: Rc<RefCell<dyn Material>>
+    mat_ptr: Rc<RefCell<dyn Material>>,
 }
 
 impl Hittable for Sphere {
@@ -22,7 +21,9 @@ impl Hittable for Sphere {
         let c = oc.len_squared() - self.radius.powf(2.);
 
         let discriminant = half_b.powf(2.) - a * c;
-        if discriminant < 0. {return false;}
+        if discriminant < 0. {
+            return false;
+        }
         let sqrtd = discriminant.sqrt();
 
         let mut root = (-half_b - sqrtd) / a;
@@ -47,20 +48,21 @@ impl Sphere {
         Self {
             center,
             radius,
-            mat_ptr
+            mat_ptr,
         }
     }
-    
 }
 
 pub struct HittableList {
-    objects: Vec<Rc<RefCell<dyn Hittable>>>
+    objects: Vec<Rc<RefCell<dyn Hittable>>>,
 }
 impl HittableList {
     pub fn new() -> Self {
-        Self { objects: Vec::new() }
+        Self {
+            objects: Vec::new(),
+        }
     }
-    pub fn new_with_first_value(object: Rc<RefCell<dyn Hittable>>) -> Self{
+    pub fn new_with_first_value(object: Rc<RefCell<dyn Hittable>>) -> Self {
         let mut res = Self::new();
         res.add(object);
         res
@@ -79,7 +81,10 @@ impl Hittable for HittableList {
         let mut hit_anything = false;
         let mut closest_so_far = t_max;
         for object in &self.objects {
-            if object.borrow().hit(ray, t_min, closest_so_far, &mut temp_rec) {
+            if object
+                .borrow()
+                .hit(ray, t_min, closest_so_far, &mut temp_rec)
+            {
                 hit_anything = true;
                 closest_so_far = temp_rec.clone().t;
                 *rec = temp_rec.clone();
@@ -87,5 +92,4 @@ impl Hittable for HittableList {
         }
         return hit_anything;
     }
-    
 }

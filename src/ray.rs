@@ -34,8 +34,13 @@ impl Ray {
         if world.hit(self, 0.001, INFINITY, &mut rec) {
             let mut scattered = Ray::default();
             let mut attention = Color::default();
-            if rec.mat_ptr.clone().unwrap().as_ref().borrow().scatter(self, &mut rec, &mut attention, &mut scattered) {
-                return attention * scattered.ray_color(world, depth-1);
+            if rec.mat_ptr.clone().unwrap().as_ref().borrow().scatter(
+                self,
+                &mut rec,
+                &mut attention,
+                &mut scattered,
+            ) {
+                return attention * scattered.ray_color(world, depth - 1);
             }
             return Color::default();
         }

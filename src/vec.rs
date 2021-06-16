@@ -49,15 +49,21 @@ impl Vec3 {
     }
     #[inline]
     pub fn random() -> Self {
-        Self(random_float(),random_float(),random_float())
+        Self(random_float(), random_float(), random_float())
     }
     pub fn random_with_range(min: f64, max: f64) -> Self {
-        Self(random_float_with_range(min,max), random_float_with_range(min, max), random_float_with_range(min, max))
+        Self(
+            random_float_with_range(min, max),
+            random_float_with_range(min, max),
+            random_float_with_range(min, max),
+        )
     }
     pub fn random_in_unit_sphere() -> Self {
         loop {
             let p = Self::random_with_range(-1., 1.);
-            if p.len_squared() >= 1. {continue;}
+            if p.len_squared() >= 1. {
+                continue;
+            }
             return p;
         }
     }
@@ -66,7 +72,9 @@ impl Vec3 {
     }
     pub fn random_in_hemisphere(normal: &Vec3) -> Self {
         let in_unit_sphere = Self::random_in_unit_sphere();
-        if in_unit_sphere.dot(normal) > 0. {return in_unit_sphere}
+        if in_unit_sphere.dot(normal) > 0. {
+            return in_unit_sphere;
+        }
         -in_unit_sphere
     }
     pub fn near_zero(&self) -> bool {
@@ -75,11 +83,11 @@ impl Vec3 {
         (self.0.abs() < s) && (self.1.abs() < s) && (self.2.abs() < s)
     }
     pub fn reflect(&self, n: Vec3) -> Vec3 {
-        *self - 2. * self.dot(&n) * n 
+        *self - 2. * self.dot(&n) * n
     }
     pub fn refract(&self, n: Vec3, etai_over_etat: f64) -> Vec3 {
         let cos_theta = (-*self).dot(&n).min(1.);
-        let r_out_perp = etai_over_etat * ( *self + cos_theta * n);
+        let r_out_perp = etai_over_etat * (*self + cos_theta * n);
         let r_out_parallel = -((1. - r_out_perp.len_squared()).abs().sqrt()) * n;
         r_out_perp + r_out_parallel
     }
@@ -179,26 +187,42 @@ impl ops::Div<f64> for Vec3 {
 }
 impl fmt::Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} {} {}", (256. * self.x()) as i32, (256. * self.y()) as i32, (256. * self.z()) as i32)
+        write!(
+            f,
+            "{} {} {}",
+            (256. * self.x()) as i32,
+            (256. * self.y()) as i32,
+            (256. * self.z()) as i32
+        )
     }
 }
 pub type Point3 = Vec3;
 pub type Color = Vec3;
 impl Color {
     pub fn write(&self, samples_per_pixel: usize) {
-        let (mut r,mut g, mut b) = (self.x(), self.y(), self.z());
+        let (mut r, mut g, mut b) = (self.x(), self.y(), self.z());
 
         let scale = 1. / samples_per_pixel as f64;
         r = (r * scale).sqrt();
         b = (b * scale).sqrt();
         g = (g * scale).sqrt();
 
-        println!("{}",Color::new((clamp(r, 0., 0.999),clamp(g, 0., 0.999), clamp(b, 0., 0.999))));
+        println!(
+            "{}",
+            Color::new((
+                clamp(r, 0., 0.999),
+                clamp(g, 0., 0.999),
+                clamp(b, 0., 0.999)
+            ))
+        );
     }
-    
 }
 fn clamp(x: f64, min: f64, max: f64) -> f64 {
-    if x < min {return min;}
-    if x > max {return max;}
+    if x < min {
+        return min;
+    }
+    if x > max {
+        return max;
+    }
     x
 }
