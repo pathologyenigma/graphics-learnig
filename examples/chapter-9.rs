@@ -11,8 +11,8 @@ fn main() {
     let mut world = HittableList::new();
     let ground = Rc::new(RefCell::new(Lambertian::new(Color::new((0.8,0.8,0.)))));
     let center = Rc::new(RefCell::new(Lambertian::new(Color::new((0.7,0.3,0.3)))));
-    let left = Rc::new(RefCell::new(Metal::new(Color::new((0.8,0.8,0.8)))));
-    let right = Rc::new(RefCell::new(Metal::new(Color::new((0.8,0.6,0.2)))));
+    let left = Rc::new(RefCell::new(Metal::new(Color::new((0.8,0.8,0.8)),0.3)));
+    let right = Rc::new(RefCell::new(Metal::new(Color::new((0.8,0.6,0.2)),1.)));
     world.add(Rc::new(RefCell::new(Sphere::new(Point3::new((0., -100.5, -1.)),100., ground))));
     world.add(Rc::new(RefCell::new(Sphere::new(Point3::new((0., 0., -1.)),0.5, center))));
     world.add(Rc::new(RefCell::new(Sphere::new(Point3::new((-1., 0., -1.)),0.5, left))));
