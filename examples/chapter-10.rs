@@ -10,9 +10,9 @@ fn main() {
     const MAX_DEPTH: usize = 50;
     let mut world = HittableList::new();
     let ground = Rc::new(RefCell::new(Lambertian::new(Color::new((0.8, 0.8, 0.)))));
-    let center = Rc::new(RefCell::new(Dielectric::new(1.5)));
+    let center = Rc::new(RefCell::new(Lambertian::new(Color::new((0.1, 0.2, 0.5)))));
     let left = Rc::new(RefCell::new(Dielectric::new(1.5)));
-    let right = Rc::new(RefCell::new(Metal::new(Color::new((0.8, 0.6, 0.2)), 1.)));
+    let right = Rc::new(RefCell::new(Metal::new(Color::new((0.8, 0.6, 0.2)), 0.)));
     world.add(Rc::new(RefCell::new(Sphere::new(
         Point3::new((0., -100.5, -1.)),
         100.,
