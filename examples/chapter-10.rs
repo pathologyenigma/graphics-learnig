@@ -26,6 +26,11 @@ fn main() {
     world.add(Rc::new(RefCell::new(Sphere::new(
         Point3::new((-1., 0., -1.)),
         0.5,
+        left.clone(),
+    ))));
+    world.add(Rc::new(RefCell::new(Sphere::new(
+        Point3::new((-1., 0., -1.)),
+        -0.4,
         left,
     ))));
     world.add(Rc::new(RefCell::new(Sphere::new(
