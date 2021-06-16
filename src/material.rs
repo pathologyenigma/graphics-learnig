@@ -65,16 +65,10 @@ pub struct Metal {
     pub(crate) fuzz: f64,
 }
 impl Metal {
-    pub fn new(albedo: Color, fuzz_in: f64) -> Self {
-        let fuzz :f64;
-        if fuzz_in >= 1. {
-            fuzz = 1.;
-        } else {
-            fuzz = fuzz_in;
-        }
+    pub fn new(albedo: Color, fuzz: f64) -> Self {
         Self {
             albedo,
-            fuzz
+            fuzz: fuzz.min(1.)
         }
     }
 }
@@ -84,5 +78,30 @@ impl Material for Metal {
         *scattered = Ray::new(rec.clone().p, reflected + self.fuzz * Vec3::random_in_unit_sphere());
         *attention = self.albedo;
         scattered.direction().dot(&rec.normal) > 0.
+    }
+}
+
+pub struct Dielectric {
+    ir: f64
+}
+impl Dielectric {
+    pub fn new(ir: f64) -> Self {
+        Self {
+            ir
+        }
+    }
+}
+
+impl Material for Dielectric {
+    fn scatter(&self, r_in: &Ray, rec: &mut HitRecord, attention: &mut Color, scattered: &mut Ray) -> bool {
+        *attention = Color::new((1., 1., 1.));
+        let refraction_ratio = match rec.front_face {
+            true => 1./ self.ir,
+            false => self.ir,
+        };
+        let unit_direction = r_in.direction().unit_vector();
+        let refracted = unit_direction.refract(rec.normal, refraction_ratio);
+        *scattered = Ray::new(rec.p, refracted);
+        true
     }
 }
