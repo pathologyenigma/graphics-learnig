@@ -40,6 +40,13 @@ impl Default for HitRecord {
 pub struct Lambertian {
     pub(crate) albedo: Color
 }
+impl Lambertian {
+    pub fn new(albedo: Color) -> Self {
+        Self {
+            albedo
+        }
+    }
+}
 
 impl Material for Lambertian {
     fn scatter(&self, _r_in: &Ray, rec: &mut HitRecord, attention: &mut Color, scattered: &mut Ray) -> bool {
@@ -56,7 +63,13 @@ impl Material for Lambertian {
 pub struct Metal {
     pub(crate) albedo: Color
 }
-
+impl Metal {
+    pub fn new(albedo: Color) -> Self {
+        Self {
+            albedo
+        }
+    }
+}
 impl Material for Metal {
     fn scatter(&self, r_in: &Ray, rec: &mut HitRecord, attention: &mut Color, scattered: &mut Ray) -> bool {
         let reflected = r_in.direction().reflect(rec.normal);
