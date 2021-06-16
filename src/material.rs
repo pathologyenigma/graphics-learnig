@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::{Color, Point3, Ray, Vec3};
+use crate::{Color, Point3, Ray, Vec3, random_float};
 #[derive(Clone)]
 pub struct HitRecord {
     pub(crate) p: Point3,
@@ -107,6 +107,11 @@ impl Dielectric {
     pub fn new(ir: f64) -> Self {
         Self { ir }
     }
+    fn reflectance(cosine: f64, ref_idx: f64) -> f64 {
+        let mut r0 = (1. - ref_idx) / (1. + ref_idx);
+        r0 *= r0;
+        r0 + (1. - r0) * (1. - cosine).powi(5)
+    }
 }
 
 impl Material for Dielectric {
@@ -127,7 +132,7 @@ impl Material for Dielectric {
         let sin_theta = (1. - cos_theta.powi(2)).sqrt();
         let cannot_refract = refraction_ratio * sin_theta > 1.;
         let direction: Vec3;
-        if cannot_refract {
+        if cannot_refract || Self::reflectance(cos_theta, refraction_ratio) > random_float() {
             direction = unit_direction.reflect(rec.normal);
         } else {
             direction = unit_direction.refract(rec.normal, refraction_ratio);
