@@ -22,7 +22,7 @@ pub fn random_float_with_range(min: f64, max: f64) -> f64 {
     thread_rng().gen_range(min..max)
 }
 pub fn degree_to_radians(d: f64) -> f64 {
-    d * 180. / PI
+    d * PI / 180.
 }
 //7-1 just talk about some c++ thing, c++ use random library
 //in rust we don't have it in standard library, I choose rand here.
