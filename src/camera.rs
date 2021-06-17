@@ -7,6 +7,10 @@ pub struct Camera {
     lower_left_corner: Point3,
     horizontal: Vec3,
     vertical: Vec3,
+    u: Vec3,
+    v: Vec3,
+    w: Vec3,
+    lens_radius: f64
 }
 
 impl Default for Camera {
@@ -26,18 +30,32 @@ impl Default for Camera {
                 - horizontal / 2.
                 - vertical / 2.
                 - Vec3::new((0., 0., focal_length)),
+            u: Vec3::default(),
+            v: Vec3::default(),
+            w: Vec3::default(),
+            lens_radius: f64::default(),
         }
     }
 }
 
 impl Camera {
     pub fn get_ray(&self, s: f64, t: f64) -> Ray {
+        let rd = self.lens_radius * Vec3::random_in_unit_disk();
+        let offset = self.u * rd + self.v * rd.y();
         Ray::new(
-            self.origin,
-            self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin,
+            self.origin + offset,
+            self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset,
         )
     }
-    pub fn new(lookfrom: Point3, lookat: Point3, vup: Vec3, vfov: f64, aspect_ratio: f64) -> Self {
+    pub fn new(
+        lookfrom: Point3,
+        lookat: Point3,
+        vup: Vec3,
+        vfov: f64,
+        aspect_ratio: f64,
+        aperture: f64,
+        focus_dist: f64,
+    ) -> Self {
         let theta = degree_to_radians(vfov);
         let h = (theta / 2.).tan();
         let viewport_height = 2. * h;
@@ -46,16 +64,17 @@ impl Camera {
         let u = vup.cross(&w).unit_vector();
         let v = w.cross(&u);
         let origin = lookfrom;
-        let horizontal = viewport_width * u;
-        let vertical = viewport_height * v;
+        let horizontal = focus_dist * viewport_width * u;
+        let vertical = focus_dist * viewport_height * v;
         Self {
             origin,
             horizontal,
             vertical,
-            lower_left_corner: origin
-                - horizontal / 2.
-                - vertical / 2.
-                - w,
+            lower_left_corner: origin - horizontal / 2. - vertical / 2. - focus_dist * w,
+            u,
+            v,
+            w,
+            lens_radius: aperture / 2.
         }
     }
 }

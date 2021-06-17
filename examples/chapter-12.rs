@@ -38,13 +38,11 @@ fn main() {
         0.5,
         right,
     ))));
-    let cam = Camera::new(
-        Point3::new((-2., 2., 1.)),
-        Point3::new((0., 0., -1.)),
-        Vec3::new((0., 1., 0.)),
-        20.,
-        ASPECT_RATIO
-    );
+    let lookfrom = Point3::new((3., 3., 2.));
+    let lookat = Point3::new((0., 0., -1.));
+    let vup = Vec3::new((0., 1., 0.));
+    let dist_to_focus = (lookfrom - lookat).len();
+    let cam = Camera::new(lookfrom, lookat, vup, 20., ASPECT_RATIO, 2., dist_to_focus);
     println!("P3\n{} {}\n255", IMAGE_WIDTH, IMAGE_HEIGHT);
     let mut j: i64 = (IMAGE_HEIGHT - 1) as i64;
     while j >= 0 {
