@@ -3,7 +3,9 @@ name = "ray_tracing_in_one_weekend"
 version = "0.1.0"
 authors = ["pengyihao <pathology666@163.com>"]
 edition = "2018"
-
+license = "MIT OR Apache-2.0"
+license_file = "LICENSE"
+keywords = ["graphics", "ray tracer"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
