@@ -5,7 +5,7 @@ authors = ["pengyihao <pathology666@163.com>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
 license_file = "LICENSE"
-keywords = ["graphics", "ray tracer"]
+keywords = ["graphics"]
 repository = "https://github.com/pathologyenigma/ray_tracing_in_one_weekend"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
