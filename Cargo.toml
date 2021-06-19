@@ -1,5 +1,5 @@
 [package]
-name = "ray_tracing_in_one_weekend"
+name = "ray_tracing_the_next_week"
 version = "0.1.0"
 authors = ["pengyihao <pathology666@163.com>"]
 edition = "2018"

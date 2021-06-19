@@ -72,7 +72,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "ray_tracing_in_one_weekend"
+name = "ray_tracing_the_next_week"
 version = "0.1.0"
 dependencies = [
  "rand",

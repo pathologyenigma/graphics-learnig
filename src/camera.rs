@@ -1,4 +1,4 @@
-use crate::degree_to_radians;
+use crate::{degree_to_radians, random_float_with_range};
 
 use super::{Point3, Ray, Vec3};
 
@@ -10,7 +10,8 @@ pub struct Camera {
     u: Vec3,
     v: Vec3,
     w: Vec3,
-    lens_radius: f64
+    lens_radius: f64,
+    time: (f64, f64)
 }
 
 impl Default for Camera {
@@ -34,6 +35,7 @@ impl Default for Camera {
             v: Vec3::default(),
             w: Vec3::default(),
             lens_radius: f64::default(),
+            time: (0., 0.)
         }
     }
 }
@@ -45,6 +47,7 @@ impl Camera {
         Ray::new(
             self.origin + offset,
             self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset,
+            random_float_with_range(self.time.0, self.time.1)
         )
     }
     pub fn new(
@@ -55,6 +58,8 @@ impl Camera {
         aspect_ratio: f64,
         aperture: f64,
         focus_dist: f64,
+        time0: f64,
+        time1: f64,
     ) -> Self {
         let theta = degree_to_radians(vfov);
         let h = (theta / 2.).tan();
@@ -74,7 +79,8 @@ impl Camera {
             u,
             v,
             w,
-            lens_radius: aperture / 2.
+            lens_radius: aperture / 2.,
+            time: (time0, time1)
         }
     }
 }

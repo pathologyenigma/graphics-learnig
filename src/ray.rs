@@ -1,15 +1,14 @@
-
-
 use super::{Color, HitRecord, Hittable, Point3, Vec3, INFINITY};
 #[derive(Default, Debug)]
 pub struct Ray {
     orig: Point3,
     dir: Vec3,
+    tm: f64,
 }
 
 impl Ray {
-    pub fn new(orig: Point3, dir: Vec3) -> Self {
-        Self { orig, dir }
+    pub fn new(orig: Point3, dir: Vec3, tm: f64) -> Self {
+        Self { orig, dir, tm }
     }
     pub fn orig(&self) -> Point3 {
         self.orig.clone()
@@ -22,6 +21,12 @@ impl Ray {
     }
     pub fn direction_mut(&mut self) -> &mut Vec3 {
         &mut self.dir
+    }
+    pub fn time(&self) -> f64 {
+        self.tm.clone()
+    }
+    pub fn time_mut(&mut self) -> &mut f64 {
+        &mut self.tm
     }
     pub fn at(&self, t: f64) -> Point3 {
         self.orig + self.dir * t
