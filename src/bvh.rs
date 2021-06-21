@@ -7,9 +7,9 @@ pub struct BVHNode {
     pub(crate) r#box: AABB,
 }
 fn compare(a: &Rc<RefCell<dyn Hittable>>, b: &Rc<RefCell<dyn Hittable>>, axis: usize) -> Ordering {
-    let boxs = (AABB::default(), AABB::default());
-    if !a.as_ref().borrow().bounding_box((0., 0.), boxs.0)
-        || !b.as_ref().borrow().bounding_box((0., 0.), boxs.1)
+    let mut boxs = (AABB::default(), AABB::default());
+    if !a.as_ref().borrow().bounding_box((0., 0.), &mut boxs.0)
+        || !b.as_ref().borrow().bounding_box((0., 0.), &mut boxs.1)
     {
         eprintln!("No bounding box in bvh_node constructor.\n");
     }
@@ -37,8 +37,8 @@ impl Hittable for BVHNode {
         return hit_right || hit_left;
     }
 
-    fn bounding_box(&self, _time: (f64, f64), mut output_box: AABB) -> bool {
-        output_box = self.r#box;
+    fn bounding_box(&self, _time: (f64, f64), output_box: &mut AABB) -> bool {
+        *output_box = self.r#box;
         true
     }
 }
@@ -80,9 +80,9 @@ impl BVHNode {
                 right = Rc::new(RefCell::new(BVHNode::from_objects(&objects, mid, end, time)));
             }
         }
-        let boxs = (AABB::default(), AABB::default());
-        if !left.as_ref().borrow().bounding_box(time, boxs.0)
-            || !right.as_ref().borrow().bounding_box(time, boxs.1)
+        let mut boxs = (AABB::default(), AABB::default());
+        if !left.as_ref().borrow().bounding_box(time, &mut boxs.0)
+            || !right.as_ref().borrow().bounding_box(time, &mut boxs.1)
         {
             eprintln!("No bounding box in bvh_node constructor.\n");
         }

@@ -5,7 +5,7 @@ use super::{Point3, Ray};
 
 pub trait Hittable {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool;
-    fn bounding_box(&self, time: (f64, f64), output_box: AABB) -> bool;
+    fn bounding_box(&self, time: (f64, f64), output_box: &mut AABB) -> bool;
 }
 
 pub struct Sphere {
@@ -43,8 +43,8 @@ impl Hittable for Sphere {
         true
     }
 
-    fn bounding_box(&self, time: (f64, f64), mut output_box: AABB) -> bool {
-        output_box = AABB::new(
+    fn bounding_box(&self, time: (f64, f64), mut output_box: &mut AABB) -> bool {
+        *output_box = AABB::new(
             self.center - Vec3::triple(self.radius),
             self.center + Vec3::triple(self.radius),
         );
@@ -102,17 +102,17 @@ impl Hittable for HittableList {
         return hit_anything;
     }
 
-    fn bounding_box(&self, time: (f64, f64), mut output_box: AABB) -> bool {
+    fn bounding_box(&self, time: (f64, f64), mut output_box: &mut AABB) -> bool {
         if self.objects.is_empty() {
             return false;
         }
-        let temp_box = AABB::default();
+        let mut temp_box = AABB::default();
         let mut first_box = true;
         for object in &self.objects {
-            if !object.borrow().bounding_box(time, temp_box) {
+            if !object.borrow().bounding_box(time, &mut temp_box) {
                 return false;
             }
-            output_box = if first_box { temp_box } else {surrounding_box((output_box, temp_box))};
+            *output_box = if first_box { temp_box } else {surrounding_box((*output_box, temp_box))};
             first_box = false;
         }
         true
@@ -171,7 +171,7 @@ impl Hittable for MovingSphere {
         true
     }
 
-    fn bounding_box(&self, time: (f64, f64), mut output_box: AABB) -> bool {
+    fn bounding_box(&self, time: (f64, f64), mut output_box: &mut AABB) -> bool {
         let b = (
             AABB::new(
                 self.center(time.0) - Vec3::triple(self.radius),
@@ -182,7 +182,7 @@ impl Hittable for MovingSphere {
                 self.center(time.1) + Vec3::triple(self.radius),
             ),
         );
-        output_box = surrounding_box(b);
+        *output_box = surrounding_box(b);
         true
     }
 }

@@ -36,4 +36,7 @@ pub mod bvh;
 pub use bvh::*;
 pub fn random_integer_with_range(min: u32, max: u32) -> u32 { 
     thread_rng().gen_range(min..max+1)
-} 
+}
+
+pub mod texture;
+pub use texture::*;
