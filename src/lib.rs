@@ -30,3 +30,10 @@ pub mod camera;
 pub use camera::*;
 pub mod material;
 pub use material::*;
+pub mod aabb;
+pub use aabb::*;
+pub mod bvh;
+pub use bvh::*;
+pub fn random_integer_with_range(min: u32, max: u32) -> u32 { 
+    thread_rng().gen_range(min..max+1)
+} 

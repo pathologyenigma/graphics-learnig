@@ -1,11 +1,14 @@
 use std::{fmt, ops};
 
 use super::{random_float, random_float_with_range};
-#[derive(Default, Debug, Clone, Copy, PartialEq)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Vec3(f64, f64, f64);
 impl Vec3 {
     pub fn new(e: (f64, f64, f64)) -> Self {
         Self(e.0, e.1, e.2)
+    }
+    pub fn triple(value: f64) -> Self {
+        Self(value, value, value)
     }
     pub fn x_mut(&mut self) -> &mut f64 {
         &mut self.0

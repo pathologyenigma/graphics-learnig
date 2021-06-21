@@ -1,10 +1,11 @@
-use crate::{HitRecord, Material};
+use crate::{AABB, HitRecord, Material, Vec3, surrounding_box};
 use std::{cell::RefCell, rc::Rc};
 
 use super::{Point3, Ray};
 
 pub trait Hittable {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool;
+    fn bounding_box(&self, time: (f64, f64), output_box: AABB) -> bool;
 }
 
 pub struct Sphere {
@@ -41,6 +42,14 @@ impl Hittable for Sphere {
         rec.mat_ptr = Some(self.mat_ptr.clone());
         true
     }
+
+    fn bounding_box(&self, time: (f64, f64), mut output_box: AABB) -> bool {
+        output_box = AABB::new(
+            self.center - Vec3::triple(self.radius),
+            self.center + Vec3::triple(self.radius),
+        );
+        true
+    }
 }
 
 impl Sphere {
@@ -54,7 +63,7 @@ impl Sphere {
 }
 
 pub struct HittableList {
-    objects: Vec<Rc<RefCell<dyn Hittable>>>,
+    pub(crate) objects: Vec<Rc<RefCell<dyn Hittable>>>,
 }
 impl HittableList {
     pub fn new() -> Self {
@@ -92,6 +101,22 @@ impl Hittable for HittableList {
         }
         return hit_anything;
     }
+
+    fn bounding_box(&self, time: (f64, f64), mut output_box: AABB) -> bool {
+        if self.objects.is_empty() {
+            return false;
+        }
+        let temp_box = AABB::default();
+        let mut first_box = true;
+        for object in &self.objects {
+            if !object.borrow().bounding_box(time, temp_box) {
+                return false;
+            }
+            output_box = if first_box { temp_box } else {surrounding_box((output_box, temp_box))};
+            first_box = false;
+        }
+        true
+    }
 }
 
 pub struct MovingSphere {
@@ -116,7 +141,8 @@ impl MovingSphere {
         }
     }
     pub fn center(&self, time: f64) -> Point3 {
-        self.center.0 + ((time - self.time.0) / (self.time.1 - time)) * (self.center.1 - self.center.0)
+        self.center.0
+            + ((time - self.time.0) / (self.time.1 - time)) * (self.center.1 - self.center.0)
     }
 }
 impl Hittable for MovingSphere {
@@ -132,7 +158,7 @@ impl Hittable for MovingSphere {
         let sqrtd = discriminant.sqrt();
         let mut root = (-half_b - sqrtd) / a;
         if root < t_min || t_max < root {
-            root = (-half_b + sqrtd) /a;
+            root = (-half_b + sqrtd) / a;
             if root < t_min || t_max < root {
                 return false;
             }
@@ -142,6 +168,21 @@ impl Hittable for MovingSphere {
         let outward_normal = (rec.p - self.center(ray.time())) / self.radius;
         rec.set_face_normal(ray, &outward_normal);
         rec.mat_ptr = Some(self.mat_ptr.clone());
+        true
+    }
+
+    fn bounding_box(&self, time: (f64, f64), mut output_box: AABB) -> bool {
+        let b = (
+            AABB::new(
+                self.center(time.0) - Vec3::triple(self.radius),
+                self.center(time.0) + Vec3::triple(self.radius),
+            ),
+            AABB::new(
+                self.center(time.1) - Vec3::triple(self.radius),
+                self.center(time.1) + Vec3::triple(self.radius),
+            ),
+        );
+        output_box = surrounding_box(b);
         true
     }
 }
