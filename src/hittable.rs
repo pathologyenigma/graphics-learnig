@@ -1,7 +1,7 @@
 use crate::{AABB, HitRecord, Material, Vec3, surrounding_box};
 use std::{cell::RefCell, rc::Rc};
 
-use super::{Point3, Ray};
+use super::{Point3, Ray, PI};
 
 pub trait Hittable {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool;
@@ -39,6 +39,7 @@ impl Hittable for Sphere {
         rec.p = ray.at(rec.t);
         let outward_normal = (rec.p - self.center) / self.radius;
         rec.set_face_normal(ray, &outward_normal);
+        rec.set_uv(Self::get_sphere_uv(&outward_normal));
         rec.mat_ptr = Some(self.mat_ptr.clone());
         true
     }
@@ -59,6 +60,11 @@ impl Sphere {
             radius,
             mat_ptr,
         }
+    }
+    pub fn get_sphere_uv(p: &Point3) ->(f64,f64){
+        let theta = -p.y().acos();
+        let phi = -p.z().atan2(p.x()) + PI;
+        (phi / (2. * PI), theta / PI)
     }
 }
 

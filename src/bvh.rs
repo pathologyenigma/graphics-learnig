@@ -6,6 +6,7 @@ pub struct BVHNode {
     pub(crate) right: Option<Rc<RefCell<dyn Hittable>>>,
     pub(crate) r#box: AABB,
 }
+#[inline]
 fn compare(a: &Rc<RefCell<dyn Hittable>>, b: &Rc<RefCell<dyn Hittable>>, axis: usize) -> Ordering {
     let mut boxs = (AABB::default(), AABB::default());
     if !a.as_ref().borrow().bounding_box((0., 0.), &mut boxs.0)

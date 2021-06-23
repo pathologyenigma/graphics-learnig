@@ -1,11 +1,13 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::{Color, Point3, Ray, Vec3, random_float};
+use crate::{Color, Point3, Ray, SoildColor, Texture, Vec3, random_float};
 #[derive(Clone)]
 pub struct HitRecord {
     pub(crate) p: Point3,
     pub(crate) normal: Vec3,
     pub(crate) t: f64,
+    pub(crate) u: f64,
+    pub(crate) v: f64,
     pub(crate) front_face: bool,
     pub(crate) mat_ptr: Option<Rc<RefCell<dyn Material>>>,
 }
@@ -18,6 +20,11 @@ impl HitRecord {
             true => outward_normal.clone(),
             false => -outward_normal.clone(),
         }
+    }
+    #[inline]
+    pub fn set_uv(&mut self, input: (f64, f64)) {
+        self.u = input.0;
+        self.v = input.1;
     }
 }
 
@@ -39,16 +46,21 @@ impl Default for HitRecord {
             t: 0.,
             front_face: bool::default(),
             mat_ptr: None,
+            u: 0.,
+            v: 0.,
         }
     }
 }
 
 pub struct Lambertian {
-    pub(crate) albedo: Color,
+    pub(crate) albedo: Rc<RefCell<dyn Texture>>,
 }
 impl Lambertian {
     pub fn new(albedo: Color) -> Self {
-        Self { albedo }
+        Self { albedo: Rc::new(RefCell::new(SoildColor::new(albedo))) }
+    }
+    pub fn with_texture(texture: Rc<RefCell<dyn Texture>>) -> Self {
+        Self{ albedo: texture}
     }
 }
 
@@ -65,7 +77,7 @@ impl Material for Lambertian {
             scatter_direction = rec.normal;
         }
         *scattered = Ray::new(rec.p, scatter_direction, r_in.time());
-        *attention = self.albedo;
+        *attention = self.albedo.borrow().value(rec.u, rec.v, &rec.p);
         return true;
     }
 }
