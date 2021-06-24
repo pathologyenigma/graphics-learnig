@@ -44,7 +44,7 @@ impl Hittable for Sphere {
         true
     }
 
-    fn bounding_box(&self, time: (f64, f64), mut output_box: &mut AABB) -> bool {
+    fn bounding_box(&self, _time: (f64, f64), output_box: &mut AABB) -> bool {
         *output_box = AABB::new(
             self.center - Vec3::triple(self.radius),
             self.center + Vec3::triple(self.radius),
@@ -62,8 +62,8 @@ impl Sphere {
         }
     }
     pub fn get_sphere_uv(p: &Point3) ->(f64,f64){
-        let theta = -p.y().acos();
-        let phi = -p.z().atan2(p.x()) + PI;
+        let theta = (-p.y()).acos();
+        let phi = (-p.z()).atan2(p.x()) + PI;
         (phi / (2. * PI), theta / PI)
     }
 }
@@ -108,7 +108,7 @@ impl Hittable for HittableList {
         return hit_anything;
     }
 
-    fn bounding_box(&self, time: (f64, f64), mut output_box: &mut AABB) -> bool {
+    fn bounding_box(&self, time: (f64, f64), output_box: &mut AABB) -> bool {
         if self.objects.is_empty() {
             return false;
         }
@@ -177,7 +177,7 @@ impl Hittable for MovingSphere {
         true
     }
 
-    fn bounding_box(&self, time: (f64, f64), mut output_box: &mut AABB) -> bool {
+    fn bounding_box(&self, time: (f64, f64), output_box: &mut AABB) -> bool {
         let b = (
             AABB::new(
                 self.center(time.0) - Vec3::triple(self.radius),

@@ -1,5 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
+use image::{GenericImageView, RgbImage};
+
 use crate::{Color, Perlin, Point3};
 
 pub trait Texture {
@@ -70,5 +72,43 @@ impl NoiseTexture {
             scale,
             ..Default::default()
         }
+    }
+}
+#[derive(Default, Clone)]
+pub struct ImageTexture {
+    data: RgbImage,
+}
+
+impl Texture for ImageTexture {
+    fn value(&self, mut u: f64, mut v: f64, _p: &Point3) -> Color {
+        if self.data.is_empty() {
+            return Color::new((0., 1., 1.));
+        }
+        u = u.clamp(0., 1.);
+        v = 1. - v.clamp(0., 1.);
+        let (width, height) = self.data.dimensions();
+        let (mut i, mut j) = ((width as f64 * u) as u32, (height as f64 * v) as u32);
+        if i >= width {
+            i = width - 1;
+        }
+        if j >= height {
+            j = height - 1;
+        }
+        const COLOR_SCALE: f64 = 1. / 255.;
+        let pixel = self.data.get_pixel(i, j);
+        
+        Color::new((COLOR_SCALE * pixel[0] as f64, COLOR_SCALE * pixel[1] as f64, COLOR_SCALE * pixel[2] as f64))
+    }
+}
+
+impl ImageTexture {
+    pub fn new(filename: &str) -> Self {
+        match image::open(filename){
+            Ok(img) => return Self { 
+                data: img.to_rgb8()
+            },
+            Err(err) => panic!("{:?}",err),
+        };
+        
     }
 }
