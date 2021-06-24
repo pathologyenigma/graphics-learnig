@@ -152,6 +152,13 @@ impl ops::MulAssign for Vec3 {
         self.2 *= rhs.2;
     }
 }
+impl ops::MulAssign<f64> for Vec3 {
+    fn mul_assign(&mut self, rhs: f64) {
+        self.0 *= rhs;
+        self.1 *= rhs;
+        self.2 *= rhs;
+    }
+}
 impl ops::DivAssign for Vec3 {
     fn div_assign(&mut self, rhs: Self) {
         self.0 /= rhs.0;

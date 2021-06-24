@@ -40,3 +40,6 @@ pub fn random_integer_with_range(min: u32, max: u32) -> u32 {
 
 pub mod texture;
 pub use texture::*;
+
+pub mod perlin;
+pub use perlin::*;

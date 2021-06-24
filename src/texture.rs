@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::{Color, Point3};
+use crate::{Color, Perlin, Point3};
 
 pub trait Texture {
     fn value(&self, u: f64, v: f64, p: &Point3) -> Color;
@@ -11,7 +11,7 @@ pub struct SoildColor {
 }
 
 impl Texture for SoildColor {
-    fn value(&self, u: f64, v: f64, p: &Point3) -> Color {
+    fn value(&self, _u: f64, _v: f64, _p: &Point3) -> Color {
         self.color
     }
 }
@@ -51,5 +51,24 @@ impl CheckerTexture {
     }
     pub fn new(odd: Rc<RefCell<dyn Texture>>, even: Rc<RefCell<dyn Texture>>) -> Self {
         Self { odd, even }
+    }
+}
+#[derive(Default, Clone, Copy)]
+pub struct NoiseTexture {
+    pub(crate) noise: Perlin,
+    pub(crate) scale: f64,
+}
+
+impl Texture for NoiseTexture {
+    fn value(&self, _u: f64, _v: f64, p: &Point3) -> Color {
+        Color::new((1., 1., 1.)) * 0.5 * (1. + (self.scale * p.z() + 10. * self.noise.turb(p, 7)).sin())
+    }
+}
+impl NoiseTexture {
+    pub fn new(scale: f64) -> Self {
+        Self {
+            scale,
+            ..Default::default()
+        }
     }
 }
