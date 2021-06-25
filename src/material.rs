@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::{Color, Point3, Ray, SoildColor, Texture, Vec3, random_float};
+use crate::{random_float, Color, Point3, Ray, SolidColor, Texture, Vec3};
 #[derive(Clone)]
 pub struct HitRecord {
     pub(crate) p: Point3,
@@ -36,6 +36,9 @@ pub trait Material {
         attention: &mut Color,
         scattered: &mut Ray,
     ) -> bool;
+    fn emitted(&self, _u: f64, _v: f64, _p: &Point3) -> Color {
+        Color::new((0., 0., 0.))
+    }
 }
 
 impl Default for HitRecord {
@@ -57,10 +60,12 @@ pub struct Lambertian {
 }
 impl Lambertian {
     pub fn new(albedo: Color) -> Self {
-        Self { albedo: Rc::new(RefCell::new(SoildColor::new(albedo))) }
+        Self {
+            albedo: Rc::new(RefCell::new(SolidColor::new(albedo))),
+        }
     }
     pub fn with_texture(texture: Rc<RefCell<dyn Texture>>) -> Self {
-        Self{ albedo: texture}
+        Self { albedo: texture }
     }
 }
 
@@ -106,7 +111,7 @@ impl Material for Metal {
         *scattered = Ray::new(
             rec.clone().p,
             reflected + self.fuzz * Vec3::random_in_unit_sphere(),
-            r_in.time()
+            r_in.time(),
         );
         *attention = self.albedo;
         scattered.direction().dot(&rec.normal) > 0.
@@ -152,5 +157,35 @@ impl Material for Dielectric {
         }
         *scattered = Ray::new(rec.p, direction, r_in.time());
         true
+    }
+}
+
+pub struct DiffuseLight {
+    pub(crate) emit: Rc<RefCell<dyn Texture>>,
+}
+
+impl DiffuseLight {
+    pub fn new(emit: Rc<RefCell<dyn Texture>>) -> Self {
+        Self { emit }
+    }
+    pub fn with_solid_color(c: Color) -> Self {
+        Self {
+            emit: Rc::new(RefCell::new(SolidColor::new(c))),
+        }
+    }
+}
+
+impl Material for DiffuseLight {
+    fn scatter(
+        &self,
+        _r_in: &Ray,
+        _rec: &mut HitRecord,
+        _attention: &mut Color,
+        _scattered: &mut Ray,
+    ) -> bool {
+        false
+    }
+    fn emitted(&self, u: f64, v: f64, p: &Point3) -> Color {
+        self.emit.borrow().value(u, v, p)
     }
 }

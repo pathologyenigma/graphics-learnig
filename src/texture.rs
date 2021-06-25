@@ -8,17 +8,17 @@ pub trait Texture {
     fn value(&self, u: f64, v: f64, p: &Point3) -> Color;
 }
 #[derive(Clone)]
-pub struct SoildColor {
+pub struct SolidColor {
     color: Color,
 }
 
-impl Texture for SoildColor {
+impl Texture for SolidColor {
     fn value(&self, _u: f64, _v: f64, _p: &Point3) -> Color {
         self.color
     }
 }
 
-impl SoildColor {
+impl SolidColor {
     pub fn new(color: Color) -> Self {
         Self { color }
     }
@@ -47,8 +47,8 @@ impl Texture for CheckerTexture {
 impl CheckerTexture {
     pub fn from_colors(color: (Color, Color)) -> Self {
         Self {
-            odd: Rc::new(RefCell::new(SoildColor::new(color.0))),
-            even: Rc::new(RefCell::new(SoildColor::new(color.1))),
+            odd: Rc::new(RefCell::new(SolidColor::new(color.0))),
+            even: Rc::new(RefCell::new(SolidColor::new(color.1))),
         }
     }
     pub fn new(odd: Rc<RefCell<dyn Texture>>, even: Rc<RefCell<dyn Texture>>) -> Self {

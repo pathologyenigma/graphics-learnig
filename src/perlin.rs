@@ -85,7 +85,7 @@ impl Perlin {
         }
         accum
     }
-    pub fn turb(&self, p: &Point3, depth: usize) -> f64{
+    pub fn turb(&self, p: &Point3, depth: usize) -> f64 {
         let mut accum = 0.;
         let mut temp_p = p.clone();
         let mut weight = 1.;
