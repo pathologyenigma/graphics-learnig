@@ -7,7 +7,7 @@ license = "MIT OR Apache-2.0"
 license_file = "LICENSE"
 keywords = ["graphics"]
 description = "codes I wrote when learning ray tracing with the book ray tracing the next week."
-repository = "https://github.com/pathologyenigma/ray_tracing_in_one_weekend"
+repository = "https://github.com/pathologyenigma/graphics_learnig/tree/ray_tracing_the_next_week"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
