@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use image::{GenericImageView, RgbImage};
+use image::RgbImage;
 
 use crate::{Color, Perlin, Point3};
 

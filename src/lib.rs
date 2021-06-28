@@ -13,6 +13,7 @@ pub use hittable::*;
 
 pub use std::f64::consts::PI as PI;
 pub const INFINITY: f64 = f64::INFINITY;
+pub const NEG_INFINITY: f64 = f64::NEG_INFINITY;
 pub use rand::prelude::*;
 
 pub fn random_float() -> f64 {

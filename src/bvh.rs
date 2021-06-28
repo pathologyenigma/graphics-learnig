@@ -1,5 +1,5 @@
-use crate::{random_integer_with_range, surrounding_box, Hittable, HittableList, AABB};
-use std::{borrow::Borrow, cell::RefCell, cmp::Ordering, convert::TryFrom, rc::Rc};
+use crate::{AABB, HitRecord, Hittable, HittableList, random_integer_with_range, surrounding_box};
+use std::{cell::RefCell, cmp::Ordering, rc::Rc};
 
 pub struct BVHNode {
     pub(crate) left: Option<Rc<RefCell<dyn Hittable>>>,
@@ -23,19 +23,25 @@ fn compare(a: &Rc<RefCell<dyn Hittable>>, b: &Rc<RefCell<dyn Hittable>>, axis: u
     }
 }
 impl Hittable for BVHNode {
-    fn hit(&self, ray: &crate::Ray, t_min: f64, t_max: f64, rec: &mut crate::HitRecord) -> bool {
+    fn hit(&self, ray: &crate::Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         if !self.r#box.hit(ray, (t_min, t_max)) {
-            return false;
+            return None;
         }
         let hit_left = match self.left.clone() {
-            Some(left) => left.as_ref().borrow().hit(ray, t_min, t_max, rec),
-            None => false,
+            Some(left) => left.as_ref().borrow().hit(ray, t_min, t_max),
+            None => None,
         };
         let hit_right = match self.right.clone() {
-            Some(right) => right.as_ref().borrow().hit(ray, t_min, t_max, rec),
-            None => false,
+            Some(right) => right.as_ref().borrow().hit(ray, t_min, t_max),
+            None => None,
         };
-        return hit_right || hit_left;
+        if hit_left.is_some() {
+            return hit_left;
+        }
+        if hit_right.is_some() {
+            return hit_right;
+        }
+        None
     }
 
     fn bounding_box(&self, _time: (f64, f64), output_box: &mut AABB) -> bool {
