@@ -30,7 +30,7 @@ impl Hittable for XYPlane {
         rec.v = (y - self.y.0) / (self.y.1 - self.y.0);
         rec.t = t;
         let outward_normal = Vec3::new((0., 0., 1.));
-        rec.set_face_normal(ray, &outward_normal);
+        rec.set_face_normal(ray, outward_normal);
         rec.mat_ptr = Some(self.mp.clone());
         rec.p = ray.at(t);
         Some(rec)
@@ -85,7 +85,7 @@ impl Hittable for XZPlane {
         rec.v = (z - self.z.0) / (self.z.1 - self.z.0);
         rec.t = t;
         let outward_normal = Vec3::new((0., 1., 0.));
-        rec.set_face_normal(ray, &outward_normal);
+        rec.set_face_normal(ray, outward_normal);
         rec.mat_ptr = Some(self.mp.clone());
         rec.p = ray.at(t);
         Some(rec)
@@ -128,19 +128,19 @@ impl Hittable for YZPlane {
         if t < t_min || t > t_max {
             return None;
         }
-        let (x, z) = (
+        let (y, z) = (
             ray.orig().y() + t * ray.direction().y(),
             ray.orig().z() + t * ray.direction().z(),
         );
-        if x < self.y.0 || x > self.y.1 || z < self.z.0 || z > self.z.1 {
+        if y < self.y.0 || y > self.y.1 || z < self.z.0 || z > self.z.1 {
             return None;
         }
         let mut rec = HitRecord::default();
-        rec.u = (x - self.y.0) / (self.y.1 - self.y.0);
+        rec.u = (y - self.y.0) / (self.y.1 - self.y.0);
         rec.v = (z - self.z.0) / (self.z.1 - self.z.0);
         rec.t = t;
         let outward_normal = Vec3::new((1., 0., 0.));
-        rec.set_face_normal(ray, &outward_normal);
+        rec.set_face_normal(ray, outward_normal);
         rec.mat_ptr = Some(self.mp.clone());
         rec.p = ray.at(t);
         Some(rec)

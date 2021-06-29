@@ -46,8 +46,8 @@ impl Hittable for HittableList {
                 .borrow()
                 .hit(ray, t_min, closest_so_far)
             {
-                closest_so_far = temp_rec.clone().t;
-                rec = Some(temp_rec.clone());
+                closest_so_far = temp_rec.t;
+                rec = Some(temp_rec);
             }
         }
         return rec;

@@ -10,7 +10,7 @@ pub struct Sphere {
 
 impl Hittable for Sphere {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
-        let oc = ray.orig() - self.center;
+        let oc = ray.orig().clone() - self.center;
         let a = ray.direction().len_squared();
         let half_b = oc.dot(&ray.direction());
         let c = oc.len_squared() - self.radius.powf(2.);
@@ -32,7 +32,7 @@ impl Hittable for Sphere {
         rec.t = root;
         rec.p = ray.at(rec.t);
         let outward_normal = (rec.p - self.center) / self.radius;
-        rec.set_face_normal(ray, &outward_normal);
+        rec.set_face_normal(ray, outward_normal);
         rec.set_uv(Self::get_sphere_uv(&outward_normal));
         rec.mat_ptr = Some(self.mat_ptr.clone());
         Some(rec)
@@ -90,7 +90,7 @@ impl MovingSphere {
 }
 impl Hittable for MovingSphere {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
-        let oc = ray.orig() - self.center(ray.time());
+        let oc = ray.orig().clone() - self.center(ray.time());
         let a = ray.direction().len_squared();
         let half_b = oc.dot(&ray.direction());
         let c = oc.len_squared() - self.radius.powi(2);
@@ -110,7 +110,7 @@ impl Hittable for MovingSphere {
         rec.t = root;
         rec.p = ray.at(rec.t);
         let outward_normal = (rec.p - self.center(ray.time())) / self.radius;
-        rec.set_face_normal(ray, &outward_normal);
+        rec.set_face_normal(ray, outward_normal);
         rec.mat_ptr = Some(self.mat_ptr.clone());
         Some(rec)
     }

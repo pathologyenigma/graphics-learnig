@@ -82,14 +82,14 @@ pub struct Translate {
 
 impl Hittable for Translate {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
-        let moved_ray = Ray::new(ray.orig() - self.offset, ray.direction(), ray.time());
+        let moved_ray = Ray::new(ray.orig().clone() - self.offset, ray.direction().clone(), ray.time());
         let rec = self.ptr.borrow().hit(&moved_ray, t_min, t_max);
         let mut res: Option<HitRecord> = None;
         if rec.is_some() {
             let mut rec = rec.unwrap();
             rec.p += self.offset;
             let outward_normal = rec.normal.clone(); // thanks for the copy trait
-            rec.set_face_normal(&moved_ray, &outward_normal);
+            rec.set_face_normal(&moved_ray, outward_normal);
             res = Some(rec);
         }
         res
@@ -157,14 +157,14 @@ impl RotateY {
 
 impl Hittable for RotateY {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
-        let mut origin = ray.orig();
-        let mut direction = ray.direction();
+        let mut origin = ray.orig().clone();
+        let mut direction = ray.direction().clone();
         origin[0] = self.cos_theta * ray.orig()[0] - self.sin_theta * ray.orig()[2];
         origin[2] = self.cos_theta * ray.orig()[2] + self.sin_theta * ray.orig()[0];
-        
-        direction[0] = self.cos_theta * ray.direction()[0] - self.sin_theta * ray.orig()[2];
-        direction[2] = self.cos_theta * ray.direction()[2] + self.sin_theta * ray.orig()[0];
-        
+
+        direction[0] = self.cos_theta * ray.direction()[0] - self.sin_theta * ray.direction()[2];
+        direction[2] = self.cos_theta * ray.direction()[2] + self.sin_theta * ray.direction()[0];
+
         let rotated_ray = Ray::new(origin, direction, ray.time());
         let rec = self.ptr.borrow().hit(&rotated_ray, t_min, t_max);
         let mut res = None;
@@ -174,22 +174,18 @@ impl Hittable for RotateY {
             let mut normal = rec.normal;
             p[0] = self.cos_theta * rec.p[0] + self.sin_theta * rec.p[2];
             p[2] = -self.sin_theta * rec.p[0] + self.cos_theta * rec.p[2];
-            
+
             normal[0] = self.cos_theta * rec.normal[0] + self.sin_theta * rec.normal[2];
-            normal[2] =
-                -self.sin_theta * rec.normal[0] + self.cos_theta * rec.normal[2];
-            let mut rec = HitRecord{
-                p,
-                ..rec
-            };
-            rec.set_face_normal(&rotated_ray, &normal);
+            normal[2] = -self.sin_theta * rec.normal[0] + self.cos_theta * rec.normal[2];
+            let mut rec = HitRecord { p, ..rec };
+            rec.set_face_normal(&rotated_ray, normal);
             res = Some(rec);
         }
         res
     }
 
     fn bounding_box(&self, _time: (f64, f64), output_box: &mut AABB) -> bool {
-        *output_box = self.bbox.clone();
+        *output_box = self.bbox;
         self.hasbox
     }
 }

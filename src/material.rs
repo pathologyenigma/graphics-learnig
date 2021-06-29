@@ -15,11 +15,11 @@ pub struct HitRecord {
 
 impl HitRecord {
     #[inline]
-    pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: &Vec3) {
-        self.front_face = ray.direction().dot(outward_normal) < 0.;
+    pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: Vec3) {
+        self.front_face = ray.direction().dot(&outward_normal) < 0.;
         self.normal = match self.front_face {
-            true => outward_normal.clone(),
-            false => -outward_normal.clone(),
+            true => outward_normal,
+            false => -outward_normal,
         }
     }
     #[inline]

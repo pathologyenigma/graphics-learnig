@@ -187,7 +187,7 @@ mod simple_light {
 mod cornell_box {
     use std::{cell::RefCell, rc::Rc};
 
-    use ray_tracing_the_next_week::{Color, DiffuseLight, HittableList, ImageTexture, Lambertian, Point3, RotateY, Sphere, TEXTURE_PATH, Translate, Vec3, XYPlane, XZPlane, YZPlane, ray};
+    use ray_tracing_the_next_week::{Color, DiffuseLight, HittableList, ImageTexture, Lambertian, Point3, RotateX, RotateY, Sphere, TEXTURE_PATH, Translate, Vec3, XYPlane, XZPlane, YZPlane, ray};
 
     pub fn gen() -> HittableList {
         let mut objects = HittableList::new();
@@ -204,7 +204,7 @@ mod cornell_box {
             45., 45., 45.,
         )))));
         let earth_texture =
-        ImageTexture::new((String::from(TEXTURE_PATH) + "earthmap.jpg").as_str());
+            ImageTexture::new((String::from(TEXTURE_PATH) + "earthmap.jpg").as_str());
         let earth_surface = Lambertian::with_texture(Rc::new(RefCell::new(earth_texture)));
         let earth_surface = Rc::new(RefCell::new(earth_surface));
         objects.add(Rc::new(RefCell::new(YZPlane::new(
@@ -245,13 +245,13 @@ mod cornell_box {
         ))));
         let box2 = Rc::new(RefCell::new(ray_tracing_the_next_week::Box::new(
             Point3::new((0., 0., 0.)),
-            Point3::new((165., 165., 165.)),
-            earth_surface,
+            Point3::new((0., 165., 165.)),
+            white,
         )));
-        let box2 = Rc::new(RefCell::new(RotateY::new(box2, -18.)));
+        let box2 = Rc::new(RefCell::new(RotateX::new(box2, -18.)));
 
         let box2 = Rc::new(RefCell::new(Translate::new(
-            Vec3::new((130., 0., 65.)),
+            Vec3::new((330., 0., 165.)),
             box2,
         )));
         objects.add(box2);
@@ -331,7 +331,7 @@ fn main() {
         _ => {
             world = cornell_box::gen();
             aspect_ratio = 1.0;
-            image_width = 600;
+            image_width = 200;
             samples_per_pixel = 200;
             background = Color::default();
             lookfrom = Point3::new((278., 278., -800.));

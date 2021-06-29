@@ -10,14 +10,14 @@ impl Ray {
     pub fn new(orig: Point3, dir: Vec3, tm: f64) -> Self {
         Self { orig, dir, tm }
     }
-    pub fn orig(&self) -> Point3 {
-        self.orig
+    pub fn orig(&self) -> &Point3 {
+        &self.orig
     }
     pub fn orig_mut(&mut self) -> &mut Point3 {
         &mut self.orig
     }
-    pub fn direction(&self) -> Vec3 {
-        self.dir
+    pub fn direction(&self) -> &Vec3 {
+        &self.dir
     }
     pub fn direction_mut(&mut self) -> &mut Vec3 {
         &mut self.dir
