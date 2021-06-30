@@ -1,33 +1,8 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::{random_float, Color, Point3, Ray, SolidColor, Texture, Vec3};
-#[derive(Clone)]
-pub struct HitRecord {
-    pub(crate) p: Point3,
-    pub(crate) normal: Vec3,
-    pub(crate) t: f64,
-    pub(crate) u: f64,
-    pub(crate) v: f64,
-    pub(crate) front_face: bool,
-    pub(crate) mat_ptr: Option<Rc<RefCell<dyn Material>>>,
-}
+use crate::{Color, HitRecord, Point3, Ray, SolidColor, Texture, Vec3, random_float};
 
-impl HitRecord {
-    #[inline]
-    pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: Vec3) {
-        self.front_face = ray.direction().dot(&outward_normal) < 0.;
-        self.normal = match self.front_face {
-            true => outward_normal,
-            false => -outward_normal,
-        }
-    }
-    #[inline]
-    pub fn set_uv(&mut self, input: (f64, f64)) {
-        self.u = input.0;
-        self.v = input.1;
-    }
-}
 
 pub trait Material {
     fn scatter(
@@ -188,5 +163,34 @@ impl Material for DiffuseLight {
     }
     fn emitted(&self, u: f64, v: f64, p: &Point3) -> Color {
         self.emit.borrow().value(u, v, p)
+    }
+}
+
+pub struct Isotropic {
+    pub(crate) albedo: Rc<RefCell<dyn Texture>>,
+}
+
+impl Isotropic {
+    pub fn new(albedo: Rc<RefCell<dyn Texture>>) -> Self {
+        Self { albedo }
+    }
+    pub fn from_color(c: Color) -> Self {
+        Self{ 
+            albedo: Rc::new(RefCell::new(SolidColor::new(c)))
+        }
+    }
+}
+
+impl Material for Isotropic {
+    fn scatter(
+        &self,
+        r_in: &Ray,
+        rec: &mut HitRecord,
+        attention: &mut Color,
+        scattered: &mut Ray,
+    ) -> bool {
+        *scattered = Ray::new(rec.p, Vec3::random_in_unit_sphere(), r_in.time());
+        *attention = self.albedo.borrow().value(rec.u, rec.v, &rec.p);
+        true
     }
 }

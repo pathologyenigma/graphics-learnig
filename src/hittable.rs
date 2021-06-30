@@ -1,4 +1,4 @@
-use crate::{surrounding_box, HitRecord, AABB};
+use crate::{AABB, Material, Point3, Vec3, surrounding_box};
 use std::{cell::RefCell, rc::Rc};
 pub mod sphere;
 pub use sphere::*;
@@ -6,8 +6,35 @@ pub mod plane;
 pub use plane::*;
 pub mod r#box;
 pub use r#box::*;
+pub mod constant_medium;
+pub use constant_medium::*;
 use super::Ray;
+#[derive(Clone)]
+pub struct HitRecord {
+    pub(crate) p: Point3,
+    pub(crate) normal: Vec3,
+    pub(crate) t: f64,
+    pub(crate) u: f64,
+    pub(crate) v: f64,
+    pub(crate) front_face: bool,
+    pub(crate) mat_ptr: Option<Rc<RefCell<dyn Material>>>,
+}
 
+impl HitRecord {
+    #[inline]
+    pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: Vec3) {
+        self.front_face = ray.direction().dot(&outward_normal) < 0.;
+        self.normal = match self.front_face {
+            true => outward_normal,
+            false => -outward_normal,
+        }
+    }
+    #[inline]
+    pub fn set_uv(&mut self, input: (f64, f64)) {
+        self.u = input.0;
+        self.v = input.1;
+    }
+}
 pub trait Hittable {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
     fn bounding_box(&self, time: (f64, f64), output_box: &mut AABB) -> bool;
