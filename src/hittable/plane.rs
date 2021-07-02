@@ -1,14 +1,14 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, rc::Rc, sync::Arc};
 
 use crate::{AABB, Color, HitRecord, Hittable, Lambertian, Material, Point3, Ray, Vec3};
 pub struct XYPlane {
-    mp: Rc<RefCell<dyn Material>>,
+    mp: Arc<dyn Material>,
     x: (f64, f64),
     y: (f64, f64),
     k: f64,
 }
 impl XYPlane {
-    pub fn new(mp: Rc<RefCell<dyn Material>>, x: (f64, f64), y: (f64, f64), k: f64) -> Self {
+    pub fn new(mp: Arc<dyn Material>, x: (f64, f64), y: (f64, f64), k: f64) -> Self {
         Self { mp, x, y, k }
     }
 }
@@ -47,9 +47,9 @@ impl Hittable for XYPlane {
 impl Default for XYPlane {
     fn default() -> Self {
         Self {
-            mp: Rc::new(RefCell::new(Lambertian::new(Color::new((
+            mp: Arc::new(Lambertian::new(Color::new((
                 255., 255., 255.,
-            ))))),
+            )))),
             x: (0., 0.),
             y: (0., 0.),
             k: 0.,
@@ -57,13 +57,13 @@ impl Default for XYPlane {
     }
 }
 pub struct XZPlane {
-    mp: Rc<RefCell<dyn Material>>,
+    mp: Arc<dyn Material>,
     x: (f64, f64),
     z: (f64, f64),
     k: f64,
 }
 impl XZPlane {
-    pub fn new(mp: Rc<RefCell<dyn Material>>, x: (f64, f64), z: (f64, f64), k: f64) -> Self {
+    pub fn new(mp: Arc<dyn Material>, x: (f64, f64), z: (f64, f64), k: f64) -> Self {
         Self { mp, x, z, k }
     }
 }
@@ -102,9 +102,9 @@ impl Hittable for XZPlane {
 impl Default for XZPlane {
     fn default() -> Self {
         Self {
-            mp: Rc::new(RefCell::new(Lambertian::new(Color::new((
+            mp: Arc::new(Lambertian::new(Color::new((
                 255., 255., 255.,
-            ))))),
+            )))),
             x: (0., 0.),
             z: (0., 0.),
             k: 0.,
@@ -112,13 +112,13 @@ impl Default for XZPlane {
     }
 }
 pub struct YZPlane {
-    mp: Rc<RefCell<dyn Material>>,
+    mp: Arc<dyn Material>,
     y: (f64, f64),
     z: (f64, f64),
     k: f64,
 }
 impl YZPlane {
-    pub fn new(mp: Rc<RefCell<dyn Material>>, y: (f64, f64), z: (f64, f64), k: f64) -> Self {
+    pub fn new(mp: Arc<dyn Material>, y: (f64, f64), z: (f64, f64), k: f64) -> Self {
         Self { mp, y, z, k }
     }
 }
@@ -157,9 +157,9 @@ impl Hittable for YZPlane {
 impl Default for YZPlane {
     fn default() -> Self {
         Self {
-            mp: Rc::new(RefCell::new(Lambertian::new(Color::new((
+            mp: Arc::new(Lambertian::new(Color::new((
                 255., 255., 255.,
-            ))))),
+            )))),
             y: (0., 0.),
             z: (0., 0.),
             k: 0.,

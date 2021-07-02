@@ -1,5 +1,7 @@
 use std::{fmt, ops};
 
+use image::Rgb;
+
 use super::{random_float, random_float_with_range};
 #[derive(Default, Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Vec3(f64, f64, f64);
@@ -243,7 +245,6 @@ impl Color {
         r = (r * scale).sqrt();
         b = (b * scale).sqrt();
         g = (g * scale).sqrt();
-
         println!(
             "{}",
             Color::new((
@@ -252,6 +253,15 @@ impl Color {
                 clamp(b, 0., 0.999)
             ))
         );
+    }
+    pub fn to_rgb8(&self, samples_per_pixel: usize) -> Rgb<u8> {
+        let (mut r, mut g, mut b) = (self.x(), self.y(), self.z());
+
+        let scale = 1. / samples_per_pixel as f64;
+        r = (r * scale).sqrt();
+        b = (b * scale).sqrt();
+        g = (g * scale).sqrt();
+        Rgb([(clamp(r, 0., 0.999) * 256.) as u8, (clamp(g, 0., 0.999) * 256.) as u8, (clamp(b, 0., 0.999) * 256.) as u8])
     }
 }
 fn clamp(x: f64, min: f64, max: f64) -> f64 {

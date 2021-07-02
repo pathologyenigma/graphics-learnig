@@ -1,11 +1,11 @@
-use std::{cell::RefCell, rc::Rc};
+use std::sync::Arc;
 
 use crate::{AABB, HitRecord, Hittable, Material, PI, Point3, Ray, Vec3, surrounding_box};
 
 pub struct Sphere {
     center: Point3,
     radius: f64,
-    mat_ptr: Rc<RefCell<dyn Material>>,
+    mat_ptr: Arc<dyn Material>,
 }
 
 impl Hittable for Sphere {
@@ -48,7 +48,7 @@ impl Hittable for Sphere {
 }
 
 impl Sphere {
-    pub fn new(center: Point3, radius: f64, mat_ptr: Rc<RefCell<dyn Material>>) -> Self {
+    pub fn new(center: Point3, radius: f64, mat_ptr: Arc<dyn Material>) -> Self {
         Self {
             center,
             radius,
@@ -66,7 +66,7 @@ pub struct MovingSphere {
     center: (Point3, Point3),
     time: (f64, f64),
     radius: f64,
-    mat_ptr: Rc<RefCell<dyn Material>>,
+    mat_ptr: Arc<dyn Material>,
 }
 
 impl MovingSphere {
@@ -74,7 +74,7 @@ impl MovingSphere {
         center: (Point3, Point3),
         time: (f64, f64),
         radius: f64,
-        mat_ptr: Rc<RefCell<dyn Material>>,
+        mat_ptr: Arc<dyn Material>,
     ) -> Self {
         Self {
             center,

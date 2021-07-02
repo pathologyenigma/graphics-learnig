@@ -1,4 +1,4 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, rc::Rc, sync::Arc};
 
 use crate::{
     degree_to_radians, HitRecord, Hittable, HittableList, Material, Point3, Ray, Vec3, XYPlane,
@@ -23,44 +23,44 @@ impl Hittable for Box {
 }
 
 impl Box {
-    pub fn new(min: Point3, max: Point3, mat_ptr: Rc<RefCell<dyn Material>>) -> Self {
+    pub fn new(min: Point3, max: Point3, mat_ptr: Arc<dyn Material>) -> Self {
         let mut sides = HittableList::new();
-        sides.add(Rc::new(RefCell::new(XYPlane::new(
+        sides.add(Arc::new(XYPlane::new(
             mat_ptr.clone(),
             (min.x(), max.x()),
             (min.y(), max.y()),
             max.z(),
-        ))));
-        sides.add(Rc::new(RefCell::new(XYPlane::new(
+        )));
+        sides.add(Arc::new(XYPlane::new(
             mat_ptr.clone(),
             (min.x(), max.x()),
             (min.y(), max.y()),
             min.z(),
-        ))));
-        sides.add(Rc::new(RefCell::new(XZPlane::new(
+        )));
+        sides.add(Arc::new(XZPlane::new(
             mat_ptr.clone(),
             (min.x(), max.x()),
             (min.z(), max.z()),
             max.y(),
-        ))));
-        sides.add(Rc::new(RefCell::new(XZPlane::new(
+        )));
+        sides.add(Arc::new(XZPlane::new(
             mat_ptr.clone(),
             (min.x(), max.x()),
             (min.z(), max.z()),
             min.y(),
-        ))));
-        sides.add(Rc::new(RefCell::new(YZPlane::new(
+        )));
+        sides.add(Arc::new(YZPlane::new(
             mat_ptr.clone(),
             (min.y(), max.y()),
             (min.z(), max.z()),
             max.x(),
-        ))));
-        sides.add(Rc::new(RefCell::new(YZPlane::new(
+        )));
+        sides.add(Arc::new(YZPlane::new(
             mat_ptr.clone(),
             (min.y(), max.y()),
             (min.z(), max.z()),
             min.x(),
-        ))));
+        )));
         Self { min, max, sides }
     }
 }
@@ -77,13 +77,13 @@ impl Default for Box {
 
 pub struct Translate {
     pub(crate) offset: Vec3,
-    pub(crate) ptr: Rc<RefCell<dyn Hittable>>,
+    pub(crate) ptr: Arc<dyn Hittable>,
 }
 
 impl Hittable for Translate {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let moved_ray = Ray::new(ray.orig().clone() - self.offset, ray.direction().clone(), ray.time());
-        let rec = self.ptr.borrow().hit(&moved_ray, t_min, t_max);
+        let rec = self.ptr.hit(&moved_ray, t_min, t_max);
         let mut res: Option<HitRecord> = None;
         if rec.is_some() {
             let mut rec = rec.unwrap();
@@ -96,7 +96,7 @@ impl Hittable for Translate {
     }
 
     fn bounding_box(&self, time: (f64, f64), output_box: &mut AABB) -> bool {
-        if !self.ptr.borrow().bounding_box(time, output_box) {
+        if !self.ptr.bounding_box(time, output_box) {
             return false;
         }
         *output_box = AABB::new(
@@ -108,13 +108,13 @@ impl Hittable for Translate {
 }
 
 impl Translate {
-    pub fn new(offset: Vec3, ptr: Rc<RefCell<dyn Hittable>>) -> Self {
+    pub fn new(offset: Vec3, ptr: Arc<dyn Hittable>) -> Self {
         Self { offset, ptr }
     }
 }
 
 pub struct RotateY {
-    pub(crate) ptr: Rc<RefCell<dyn Hittable>>,
+    pub(crate) ptr: Arc<dyn Hittable>,
     pub(crate) sin_theta: f64,
     pub(crate) cos_theta: f64,
     pub(crate) hasbox: bool,
@@ -122,12 +122,12 @@ pub struct RotateY {
 }
 
 impl RotateY {
-    pub fn new(ptr: Rc<RefCell<dyn Hittable>>, angle: f64) -> Self {
+    pub fn new(ptr: Arc<dyn Hittable>, angle: f64) -> Self {
         let radians = degree_to_radians(angle);
         let sin_theta = radians.sin();
         let cos_theta = radians.cos();
         let mut bbox = AABB::default();
-        let hasbox = ptr.borrow().bounding_box((0., 1.), &mut bbox);
+        let hasbox = ptr.bounding_box((0., 1.), &mut bbox);
         let mut min = Point3::new((INFINITY, INFINITY, INFINITY));
         let mut max = Point3::new((NEG_INFINITY, NEG_INFINITY, NEG_INFINITY));
         for i in 0..2 {
@@ -166,7 +166,7 @@ impl Hittable for RotateY {
         direction[2] = self.cos_theta * ray.direction()[2] + self.sin_theta * ray.direction()[0];
 
         let rotated_ray = Ray::new(origin, direction, ray.time());
-        let rec = self.ptr.borrow().hit(&rotated_ray, t_min, t_max);
+        let rec = self.ptr.hit(&rotated_ray, t_min, t_max);
         let mut res = None;
         if rec.is_some() {
             let rec = rec.unwrap();

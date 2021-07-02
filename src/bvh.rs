@@ -1,16 +1,16 @@
-use crate::{AABB, HitRecord, Hittable, HittableList, random_integer_with_range, surrounding_box};
-use std::{cell::RefCell, cmp::Ordering, rc::Rc};
+use crate::{random_integer_with_range, surrounding_box, HitRecord, Hittable, HittableList, AABB};
+use std::{cmp::Ordering, sync::Arc};
 
 pub struct BVHNode {
-    pub(crate) left: Option<Rc<RefCell<dyn Hittable>>>,
-    pub(crate) right: Option<Rc<RefCell<dyn Hittable>>>,
+    pub(crate) left: Option<Arc<dyn Hittable>>,
+    pub(crate) right: Option<Arc<dyn Hittable>>,
     pub(crate) r#box: AABB,
 }
 #[inline]
-fn compare(a: &Rc<RefCell<dyn Hittable>>, b: &Rc<RefCell<dyn Hittable>>, axis: usize) -> Ordering {
+fn compare(a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>, axis: usize) -> Ordering {
     let mut boxs = (AABB::default(), AABB::default());
-    if !a.as_ref().borrow().bounding_box((0., 0.), &mut boxs.0)
-        || !b.as_ref().borrow().bounding_box((0., 0.), &mut boxs.1)
+    if !a.as_ref().bounding_box((0., 0.), &mut boxs.0)
+        || !b.as_ref().bounding_box((0., 0.), &mut boxs.1)
     {
         eprintln!("No bounding box in bvh_node constructor.\n");
     }
@@ -28,11 +28,11 @@ impl Hittable for BVHNode {
             return None;
         }
         let hit_left = match self.left.clone() {
-            Some(left) => left.as_ref().borrow().hit(ray, t_min, t_max),
+            Some(left) => left.as_ref().hit(ray, t_min, t_max),
             None => None,
         };
         let hit_right = match self.right.clone() {
-            Some(right) => right.as_ref().borrow().hit(ray, t_min, t_max),
+            Some(right) => right.as_ref().hit(ray, t_min, t_max),
             None => None,
         };
         if hit_left.is_some() {
@@ -51,45 +51,39 @@ impl Hittable for BVHNode {
 }
 impl BVHNode {
     pub fn from_hittable_list(list: HittableList, time: (f64, f64)) -> Self {
-        Self::from_objects(&list.objects, 0, list.objects.len(), time)
+        Self::from_objects(list.objects, time)
     }
-    pub fn from_objects(
-        raw_objects: &Vec<Rc<RefCell<dyn Hittable>>>,
-        start: usize,
-        end: usize,
-        time: (f64, f64),
-    ) -> Self {
-        let mut objects = raw_objects.clone();
+    pub fn from_objects(raw_objects: Vec<Arc<dyn Hittable>>, time: (f64, f64)) -> Self {
+        let mut objects = raw_objects;
         let axis = random_integer_with_range(0, 2);
-        let object_span = end - start;
-        let (left, right): (
-            Rc<RefCell<dyn Hittable>>,
-            Rc<RefCell<dyn Hittable>>,
-        );
+        let object_span = objects.len();
+        let (left, right): (Arc<dyn Hittable>, Arc<dyn Hittable>);
         match object_span {
             1 => {
-                left = objects[start].clone();
-                right = objects[start].clone();
+                left = objects[0].clone();
+                right = objects[0].clone();
             }
             2 => {
-                if compare(&objects[start], &objects[start + 1], axis as usize) == Ordering::Less {
-                    left = objects[start].clone();
-                    right = objects[start + 1].clone();
+                if compare(&objects[0], &objects[1], axis as usize) == Ordering::Less {
+                    left = objects[0].clone();
+                    right = objects[1].clone();
                 } else {
-                    left = objects[start + 1].clone();
-                    right = objects[start].clone();
+                    left = objects[1].clone();
+                    right = objects[0].clone();
                 }
             }
             _ => {
                 objects.sort_by(|a, b| compare(a, b, axis as usize));
                 let mid = object_span / 2;
-                left = Rc::new(RefCell::new(BVHNode::from_objects(&objects, start, mid, time)));
-                right = Rc::new(RefCell::new(BVHNode::from_objects(&objects, mid, end, time)));
+                let mut left_objects = objects;
+                let right_objects = left_objects.split_off(mid);
+                left = Arc::new(BVHNode::from_objects(left_objects, time));
+                right = Arc::new(BVHNode::from_objects(right_objects, time));
             }
         }
         let mut boxs = (AABB::default(), AABB::default());
-        if !left.as_ref().borrow().bounding_box(time, &mut boxs.0)
-            || !right.as_ref().borrow().bounding_box(time, &mut boxs.1)
+        if !left.as_ref().bounding_box(time, &mut boxs.0)
+            || !right.as_ref().bounding_box(time, &mut boxs.1)
         {
             eprintln!("No bounding box in bvh_node constructor.\n");
         }
@@ -101,5 +95,3 @@ impl BVHNode {
         }
     }
 }
-
-

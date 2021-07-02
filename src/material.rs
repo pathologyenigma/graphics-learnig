@@ -1,10 +1,10 @@
 
-use std::{cell::RefCell, rc::Rc};
+use std::sync::Arc;
 
 use crate::{Color, HitRecord, Point3, Ray, SolidColor, Texture, Vec3, random_float};
 
 
-pub trait Material {
+pub trait Material: Send + Sync{
     fn scatter(
         &self,
         r_in: &Ray,
@@ -32,15 +32,15 @@ impl Default for HitRecord {
 }
 
 pub struct Lambertian {
-    pub(crate) albedo: Rc<RefCell<dyn Texture>>,
+    pub(crate) albedo: Arc<dyn Texture>,
 }
 impl Lambertian {
     pub fn new(albedo: Color) -> Self {
         Self {
-            albedo: Rc::new(RefCell::new(SolidColor::new(albedo))),
+            albedo: Arc::new(SolidColor::new(albedo)),
         }
     }
-    pub fn with_texture(texture: Rc<RefCell<dyn Texture>>) -> Self {
+    pub fn with_texture(texture: Arc<dyn Texture>) -> Self {
         Self { albedo: texture }
     }
 }
@@ -58,7 +58,7 @@ impl Material for Lambertian {
             scatter_direction = rec.normal;
         }
         *scattered = Ray::new(rec.p, scatter_direction, r_in.time());
-        *attention = self.albedo.borrow().value(rec.u, rec.v, &rec.p);
+        *attention = self.albedo.value(rec.u, rec.v, &rec.p);
         return true;
     }
 }
@@ -137,16 +137,16 @@ impl Material for Dielectric {
 }
 
 pub struct DiffuseLight {
-    pub(crate) emit: Rc<RefCell<dyn Texture>>,
+    pub(crate) emit: Arc<dyn Texture>,
 }
 
 impl DiffuseLight {
-    pub fn new(emit: Rc<RefCell<dyn Texture>>) -> Self {
+    pub fn new(emit: Arc<dyn Texture>) -> Self {
         Self { emit }
     }
     pub fn with_solid_color(c: Color) -> Self {
         Self {
-            emit: Rc::new(RefCell::new(SolidColor::new(c))),
+            emit: Arc::new(SolidColor::new(c)),
         }
     }
 }
@@ -162,21 +162,21 @@ impl Material for DiffuseLight {
         false
     }
     fn emitted(&self, u: f64, v: f64, p: &Point3) -> Color {
-        self.emit.borrow().value(u, v, p)
+        self.emit.value(u, v, p)
     }
 }
 
 pub struct Isotropic {
-    pub(crate) albedo: Rc<RefCell<dyn Texture>>,
+    pub(crate) albedo: Arc<dyn Texture>,
 }
 
 impl Isotropic {
-    pub fn new(albedo: Rc<RefCell<dyn Texture>>) -> Self {
+    pub fn new(albedo: Arc<dyn Texture>) -> Self {
         Self { albedo }
     }
     pub fn from_color(c: Color) -> Self {
         Self{ 
-            albedo: Rc::new(RefCell::new(SolidColor::new(c)))
+            albedo: Arc::new(SolidColor::new(c))
         }
     }
 }
@@ -190,7 +190,7 @@ impl Material for Isotropic {
         scattered: &mut Ray,
     ) -> bool {
         *scattered = Ray::new(rec.p, Vec3::random_in_unit_sphere(), r_in.time());
-        *attention = self.albedo.borrow().value(rec.u, rec.v, &rec.p);
+        *attention = self.albedo.value(rec.u, rec.v, &rec.p);
         true
     }
 }

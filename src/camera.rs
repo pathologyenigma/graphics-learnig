@@ -1,7 +1,7 @@
 use crate::{degree_to_radians, random_float_with_range};
 
 use super::{Point3, Ray, Vec3};
-
+#[derive(Clone, Copy)]
 pub struct Camera {
     origin: Point3,
     lower_left_corner: Point3,

@@ -1,10 +1,10 @@
-use std::{cell::RefCell, rc::Rc};
+use std::sync::Arc;
 
 use image::RgbImage;
 
 use crate::{Color, Perlin, Point3};
 
-pub trait Texture {
+pub trait Texture : Send + Sync{
     fn value(&self, u: f64, v: f64, p: &Point3) -> Color;
 }
 #[derive(Clone)]
@@ -30,28 +30,28 @@ impl SolidColor {
 }
 #[derive(Clone)]
 pub struct CheckerTexture {
-    odd: Rc<RefCell<dyn Texture>>,
-    even: Rc<RefCell<dyn Texture>>,
+    odd: Arc<dyn Texture>,
+    even: Arc<dyn Texture>,
 }
 
 impl Texture for CheckerTexture {
     fn value(&self, u: f64, v: f64, p: &Point3) -> Color {
         let sines = (10. * p.x()).sin() * (10. * p.y()).sin() * (10. * p.z()).sin();
         if sines < 0. {
-            return self.odd.borrow().value(u, v, p);
+            return self.odd.value(u, v, p);
         }
-        self.even.borrow().value(u, v, p)
+        self.even.value(u, v, p)
     }
 }
 
 impl CheckerTexture {
     pub fn from_colors(color: (Color, Color)) -> Self {
         Self {
-            odd: Rc::new(RefCell::new(SolidColor::new(color.0))),
-            even: Rc::new(RefCell::new(SolidColor::new(color.1))),
+            odd: Arc::new(SolidColor::new(color.0)),
+            even: Arc::new(SolidColor::new(color.1)),
         }
     }
-    pub fn new(odd: Rc<RefCell<dyn Texture>>, even: Rc<RefCell<dyn Texture>>) -> Self {
+    pub fn new(odd: Arc<dyn Texture>, even: Arc<dyn Texture>) -> Self {
         Self { odd, even }
     }
 }

@@ -44,9 +44,8 @@ impl Ray {
                     .mat_ptr
                     .clone()
                     .unwrap()
-                    .borrow()
                     .emitted(rec.u, rec.v, &rec.p);
-                if !rec.mat_ptr.clone().unwrap().as_ref().borrow().scatter(
+                if !rec.mat_ptr.clone().unwrap().as_ref().scatter(
                     self,
                     &mut rec,
                     &mut attention,

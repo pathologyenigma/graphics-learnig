@@ -46,3 +46,4 @@ pub mod perlin;
 pub use perlin::*;
 
 pub const TEXTURE_PATH: &'static str = "./assets/texture/";
+pub const OUTPUT_PATH: &'static str = "./outputs/";

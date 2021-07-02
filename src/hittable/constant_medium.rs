@@ -1,10 +1,10 @@
-use std::{cell::RefCell, rc::Rc};
+use std::sync::Arc;
 
 use crate::{Color, HitRecord, Hittable, INFINITY, Isotropic, Material, NEG_INFINITY, Ray, Texture, Vec3, random_float};
 
 pub struct ConstantMedium {
-    pub(crate) boundary: Rc<RefCell<dyn Hittable>>,
-    pub(crate) phase_function: Rc<RefCell<dyn Material>>,
+    pub(crate) boundary: Arc<dyn Hittable>,
+    pub(crate) phase_function: Arc<dyn Material>,
     pub(crate) neg_inv_density: f64,
 }
 
@@ -12,11 +12,11 @@ impl Hittable for ConstantMedium {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         const ENABLE_DEBUG: bool = false;
         let debuging: bool = ENABLE_DEBUG && random_float() < 0.00001;
-        let rec1 = self.boundary.borrow().hit(ray, NEG_INFINITY, INFINITY);
+        let rec1 = self.boundary.hit(ray, NEG_INFINITY, INFINITY);
         match rec1 {
             None => return None,
             Some(mut rec1) => {
-                let rec2 = self.boundary.borrow().hit(ray, rec1.t + 0.0001, INFINITY);
+                let rec2 = self.boundary.hit(ray, rec1.t + 0.0001, INFINITY);
                 match rec2 {
                     None => return None,
                     Some(mut rec2) => {
@@ -61,26 +61,26 @@ impl Hittable for ConstantMedium {
     }
 
     fn bounding_box(&self, time: (f64, f64), output_box: &mut crate::AABB) -> bool {
-        self.boundary.borrow().bounding_box(time, output_box)
+        self.boundary.bounding_box(time, output_box)
     }
 }
 
 impl ConstantMedium {
     pub fn with_texture(
-        boundary: Rc<RefCell<dyn Hittable>>,
-        texture: Rc<RefCell<dyn Texture>>,
+        boundary: Arc<dyn Hittable>,
+        texture: Arc<dyn Texture>,
         neg_inv_density: f64,
     ) -> Self {
         Self {
             boundary,
-            phase_function: Rc::new(RefCell::new(Isotropic::new(texture))),
+            phase_function: Arc::new(Isotropic::new(texture)),
             neg_inv_density: -1. / neg_inv_density,
         }
     }
-    pub fn from_color(boundary: Rc<RefCell<dyn Hittable>>, c: Color, neg_inv_density: f64) -> Self {
+    pub fn from_color(boundary: Arc<dyn Hittable>, c: Color, neg_inv_density: f64) -> Self {
         Self {
             boundary,
-            phase_function: Rc::new(RefCell::new(Isotropic::from_color(c))),
+            phase_function: Arc::new(Isotropic::from_color(c)),
             neg_inv_density: -1. / neg_inv_density,
         }
     }
